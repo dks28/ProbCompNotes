@@ -1,0 +1,580 @@
+\chapter{A Review of Probability Theory, and A Glimpse of Randomised Computation}
+
+	\section{Foundations of Probability Theory}
+
+	\subsection{Probability Spaces}
+		
+		When conducting an `experiment' (in the context of this course, this is, for example, executing a randomised algorithm
+		on a particular input), we can obtain different results from the same set-up, in the context of randomised algorithms 
+		this would correspond to different non-deterministic choices made during the execution of the algorithm. We formalise 
+		the notion of different results, and their likelihoods, for an experiment with the notion  of a probability space.
+		\begin{definition}[Probability Space]
+			\label{def:probabilityspace}
+			A \emph{Probability Space} is a triple $(\Omega, \mathcal{F}, \mathbb{P})$, where
+			\begin{itemize}
+				\item the \emph{sample space} $\Omega$ is a set of \emph{outcomes} $\omega$,
+				\item the \emph{event space} $\mathcal{F}\subseteq\mathcal{P}(\Omega)$\footnotemark is a set of \emph{events},
+				\item the \emph{probability measure} is $\mathbb{P} \in \mathcal{F} \rightarrow \mathbb{R}$
+			\end{itemize}
+			\footnotetext{All probability spaces in the scope of this course will have $\mathcal{F} = \mathcal{P}(\Omega)$.}
+			and these components further satisfy
+			\begin{enumerate}[$(i)$]
+				\item{
+					\begin{itemize}
+						\item $\varnothing, \Omega \in \mathcal{F}$,
+						\item $\mathcal{E} \in \mathcal{F} \implies \Omega \setminus \mathcal{E} \in \mathcal{F}$,
+						\item if $\mathfrak{E} \subseteq \mathcal{F}$, then $\bigcup_{\mathcal{E} \in 
+						\mathfrak{E}} \mathcal{E} \in \mathcal{F}$ and $\bigcap_{\mathcal{E} \in 
+						\mathfrak{E}} \mathcal{E} \in \mathcal{F}$\footnotemark,
+					\end{itemize}
+				}
+				\item{
+					\begin{itemize}
+						\item $\forall \mathcal{E} \in \mathcal{F}. \mathbb{P}(\mathcal{E}) \in [0,1]$,
+						\item $\mathbb{P}(\Omega) = 1$,
+						\item if $\mathfrak{E} \subseteq \mathcal{F}$ has $\forall \mathcal{E}_1, 
+						\mathcal{E}_2 \in \mathfrak{E}. \mathcal{E}_1 \neq \mathcal{E}_2 \implies
+						\mathcal{E}_1 \cap \mathcal{E}_2 = \varnothing$, then 
+						$\mathbb{P}(\bigcup_{\mathcal{E} \in \mathfrak{E}} \mathcal{E}) = 
+						\sum_{\mathcal{E} \in \mathfrak{E}} \mathbb{P}(\mathcal{E})$.
+					\end{itemize}
+				\footnotetext{The inclusion of the intersection axiom is redundant with the complement and union axioms.}
+				}
+			\end{enumerate}
+		\end{definition}
+		
+		From this definition, we can easily draw several useful conclusions, each of which should be familiar:
+		\begin{lemma}
+			\label{lemma:basicprobs}
+			\ \\
+			\vspace{-1.5em}
+			\begin{enumerate}[(1)]
+				\item $\mathbb{P}(\varnothing) = 0$
+				\item $\forall \mathcal{E} \in \mathcal{F}. \mathbb{P}(\Omega \setminus \mathcal{E}) = 
+				1 - \mathbb{P}(\mathcal{E})$ 
+				\item $\mathcal{A} \subseteq \mathcal{B} \implies \mathbb{P}(\mathcal{A}) \leq \mathbb{P}(\mathcal{B})$.
+				\item $\mathbb{P}(\mathcal{A} \cup \mathcal{B}) = \mathbb{P}(\mathcal{A}) + \mathbb{P}(\mathcal{B}) - 
+				\mathbb{P}(\mathcal{A} \cap \mathcal{B})$
+			\end{enumerate}
+		\end{lemma}
+		The proofs of these results are ommited, as they become trivial by rewriting certain events as the unions of disjoint events.
+
+		A more important result is known as the \emph{Union bound}.
+		\begin{theorem}[Union Bound]
+			Let $\mathfrak{E} \subseteq \mathcal{F}$ be a countable family of events in a probability space $(\Omega, \mathcal{F}, 
+			\mathbb{P})$, then 
+			$$
+				\mathbb{P}\left(\bigcup_{\mathcal{E} \in \mathfrak{E}} \mathcal{E}\right) \leq \sum_{\mathcal{E} \in 
+				\mathfrak{E}}\mathbb{P}(\mathcal{E})
+			$$
+		\end{theorem}
+		\begin{proof}
+			Since $\mathfrak{E}$ is countable, fix an enumeration $\mathcal{E}_1, \mathcal{E}_2 \hdots$ on its members. 
+			We then define $\forall i \in \mathbb{N}, \mathcal{E}'_i \coloneqq \mathcal{E}_i \setminus \bigcup_{1\leq j
+			< i} \mathcal{E}_j$, then clearly the family of events containing the $\mathcal{E}'_i$ is pairwise disjoint.
+			Therefore, by the third part of axiom $(ii)$ of probability spaces, 
+			\begin{align*}
+				\mathbb{P}\left(\bigcup_i \mathbb{E}_i\right)&= \mathbb{P}\left(\bigcup_i \mathcal{E}'_i\right) \\
+				                                  &= \sum_i \mathbb{P}(\mathcal{E}'_i) \\
+					\intertext{which is, by part $(3)$ of lemma \ref{lemma:basicprobs},}
+								  &\leq \sum_i \mathbb{P}(\mathcal{E}_i)
+			\end{align*}
+		\end{proof}
+
+		To illustrate the notion of a probability space and its components, consider as an example a fair die, a single roll 
+		of which generates the probability space with $\Omega = \{1\hdots6\}, \mathcal{F} = \mathcal{P}(\Omega)$ and 
+		$\mathbb{P}$ mapping any event to the number of outcomes in the event divided by six. The events in $\mathcal{F}$ can 
+		be characterised as, for example, `an even  number', `a number less than 3' or `a 1, a 4, or a 5'.
+	
+	\subsection{Random Variables}
+		When conducting an experiment, it is often natural to consider some numerical property of any outcome, rather than the
+		whole outcome, important. In these cases, we can consider outcomes that share the same value for this property as equivalent,
+		and focus on the events generated by the resulting equivalence classes. We formalise this idea as follows:
+		\begin{definition}[Random Variable]
+			A \emph{random variable} $X$ on a probability space $(\Omega, \mathcal{F}, \mathbb{P})$ is a total function;
+			$X \in \Omega \rightarrow \mathbb{R}$.\footnote{There is nothing preventing a random variable taking complex 
+			values besides this definition.}
+		\end{definition}
+		\begin{comment}
+			As mentioned, we care about events in which all outcomes that share a value under the random variable. As such, any
+			random variable $X$ implicitly defines a family of events $\mathcal{E}_{X = x} \coloneqq \{\omega\in \Omega : 
+			X(\omega) = x\}$ for real $x$. We will abuse notation and denote these events simply as $X = x$ for convenience,
+			and use similar notation for inequalities, etc.
+		\end{comment}
+
+		Here\"inafter, we mainly concern ourselves with such random variable generated events. A very important random variable to
+		keep in mind is the \emph{indicator} random variable; for any event $\mathcal{E}$, $1_{\mathcal{E}}$ (also sometimes written 
+		as $1[ \mathcal{E}])$ is defined as
+		$$
+			1_{\mathcal{E}} \coloneqq \lambda \omega \in \Omega. 
+			\begin{dcases}
+				1 & \omega \in \mathcal{E} \\
+				0 & \omega \notin \mathcal{E}
+			\end{dcases}
+			.
+		$$
+		With this definition, it becomes immediately obvious that the following important result holds, where 
+		$\mathbb{E}(X) \coloneqq \sum_{\omega} X(\omega) \cdot \mathbb{P}(\{\omega\})$ is the expected value of $X$:
+		$\mathbb{E}(1_{\mathcal{E}}) = \mathbb{P}(\mathcal{E})$.
+
+	\subsection{Probability Distributions}
+		
+		Secondary to the probability measure $\mathbb{P}$ from a probability space, we consider another function specifying 
+		probabilities; the probability distribution function. For the purposes of this course, we consider exclusively discrete 
+		probability spaces, so a probability distribution is determined by its so-called \emph{probability mass function} (pmf) 
+		which is defined as $\mathrm{Pr} \coloneqq \lambda \omega \in \Omega. \mathbb{P}(\{\omega\})$, where $\sum_\omega 
+		\mathrm{Pr}(\omega) = 1$.\footnote{Due to the discrete nature of our probability spaces, we will also refer to probability 
+		distributions as probability vectors interchangeably, especially when we are working with finite sample spaces.}
+		\par
+		When one says that a random variable $X$ is `drawn from', or `follows', a particular probability distribution, we take it 
+		to mean that the probability $\mathbb{P}(X=x)$ of any value $x$ of $X$ is that determined by the probability mass function 
+		of the given distribution.
+		
+		\paragraph{Example.} We consider the following random process: Given $n$ bins, we repeatedly throw balls into a randomly 
+		chosen bin, where each bin is chosen with equal probability, that is, each bin is chosen with probability $\sfrac{1}{n}$
+		at each time $t$. Then the random variable $T$, representing the smallest $t$ such that the first bin is chosen at $t$ 
+		follows a geometric distribution, with probability mass function $\mathbb{P}(T=t) = (1- \sfrac{1}{n})^{t-1} / n$. 
+
+	
+	\section{Moments}
+
+		We have already seen the idea of an expected value of a random variable, $\mathbb{E}(X)$. From previous courses, we also 
+		know of the \emph{variance}. Both the expected value and the variance of a random variable are specific instances of a more
+		general concept called \emph{moments}, which are another way of specifying the random variable\footnote{This claim is 
+		elaborated upon in a later subsection.}. 
+
+		\begin{definition}[Moments]
+			The $k$th \emph{moment} $\mathbb{E}(X^k)$ of a random variable $X$ over a probability space 
+			$(\Omega, \mathcal{F}, \mathbb{P})$ is 
+			$$
+				\mathbb{E}{X^k} \coloneqq \sum_{\omega \in \Omega} \big(X(\omega)\big)^k \cdot \mathbb{P}(\{\omega\}).
+			$$
+			We further define the \emph{central} and \emph{standardised} moments of $X$ by defining the random variable 
+			$X' \coloneqq \lambda \omega \in \Omega. X(\omega) - \mathbb{E}(X)$, then 
+			\begin{itemize}
+				\item the $k$th \emph{central} moment of $X$, denoted $\mathbb{E}((X-\mu)^k)$, is then defined as the 
+				$k$th moment of $X'$. 
+				\item the $k$th \emph{standardised} (or normalised central) moment of $X$ is the $k$th central moment 
+				divided by $\sigma^n$, where $\sigma \coloneqq \sqrt{\mathrm{var}(X)}$.
+			\end{itemize}
+		\end{definition}
+
+	\subsection{First and Second Moment Methods}
+		In the above definition we have taken two things to be implicitly defined. Firstly, we have called the first moment of $X$
+		its expected value (and introduced the convention to use $\mu$ as a symbol for it), and secondly, we have used the 
+		variance of $X$. For completeness, the variance of a random variable $X$ is defined as its second central moment. \par
+		These two values give us the necessary means to prove two first bounds on different probabilities. 
+		\begin{theorem}[Markov Inequality (First Moment Method)]
+			\label{theorem:markovineq}
+			Let $X$ be a random variable over a probability space $(\Omega, \mathcal{F}, \mathbb{P})$
+			taking nonnegative values, and let $a \in \mathbb{R}^+$, then
+			$$
+				\mathbb{P}(X \geq a) \leq \sfrac{\mathbb{E}(X)}{a}
+			$$
+		\end{theorem}
+		\begin{proof}
+			Recall the definition of $\mathbb{E}(X)$:
+			\begin{align*}
+				\mathbb{E}(X) &\coloneqq \sum_{\omega \Omega} X(\omega) \mathbb{P}(\{\omega\}) \\
+						&= \sum_{r \in \mathrm{range(X)}} r \mathbb{P}(X = r) \\
+						&\geq \left(\sum_{\mathrm{range}(X) \ni r \geq a} a \mathbb{P}(X=r)\right) + 
+						      \left(\sum_{\mathrm{range}(X) \ni r < a} r \mathbb{P}(X=r)\right) \\
+						&\geq a \cdot \sum_{\mathrm{range}(X) \ni r \geq a} \mathbb{P}(X=r) \\
+						&= a \cdot \mathbb{P}(X \geq a) 
+			\end{align*}
+		\end{proof}
+		So we have a first bound on the probability that a random variable exceeds a 
+		certain value. This bound is helpful, albe\"it not very tight\footnote{As we will 
+		see in a later chapter.}. The second bound we can establish now is the following, 
+		a bound on the probability that therandom variable deviates by a certain amount 
+		from its expected value:
+		\begin{theorem}[Chebyshev Inequality (Second Moment Method)]
+			\label{theorem:chebineq}
+			Let now $X$ be any random variable, and take $a \in \mathbb{R}^+$, then
+			$$
+				\mathbb{P}(\left| X - \mathbb{E}(X)\right| \geq a) \leq \sfrac{\mathrm{var}(X)}{a^2}
+			$$
+		\end{theorem}
+		\begin{proof}
+			\begin{align*}
+				\mathrm{var}(X) &\coloneqq \sum_{\omega \in \Omega} (X(\omega) - \mathbb{E}(X))^2\cdot\mathbb{P}(\{\omega\})\\
+						&= \sum_{r \in \mathrm{range}(X)} (r - \mathbb{E}(X))^2 \cdot\mathbb{P}(X = r)\\
+						&\geq \sum_{a \leq |r - \mathbb{E}(X)|} a^2 \mathbb{P}(X=r) \\
+						&= a^2 \cdot \mathbb{P}(|X-\mathbb{E}(X)| \geq a)
+			\end{align*}
+		\end{proof}
+		
+		In practice, we may care particularly about the deviation from the mean relative to the average deviation. 
+		Thus if we define the \emph{standard deviation} $\sigma_X \coloneqq \sqrt{\mathrm{var}(X)}$, then the above inequality is 
+		sometimes presented as $\mathbb{P}(|X - \mathbb{E}(X)| \geq k \sigma_X) \leq k^{-2}$.
+
+	\subsection{The Moment-Generating Function *}
+		We had earlier commented that the moments of a random variable `specify it'. A semantically correct form of this claim is
+		that the collection of a random variable's moments uniquely determine its probability distribution, under certain conditions. 
+		This can be stated more formally after we make the following definition.
+		\begin{definition}[Moment-Generating Function]
+			Let $X$ be a random variable, then its \emph{moment-generating function} (mgf) $M_X : \mathbb{R} \rightarrow \mathbb{R}$
+			is $M_X \coloneqq \lambda t . \mathbb{E}(\exp(tX))$.
+		\end{definition}
+		For any $k \in \mathbb{N}$, we can recover the $k$th moment of $X$ given its mgf by differentiation; let $M_X^{(i)} \coloneqq 
+		\frac{\mathrm{d}^{i}}{\mathrm{d}t^i}$, then
+		\begin{align*}
+			M_X(t) &= \mathbb{E}(\exp(tX)) \\
+			       &= \mathbb{E}\left(\sum_{i \in \mathbb{N}_0} \sfrac{t^iX^i}{i!} \right) \\
+			       &= \sum_{i \in \mathbb{N}_0} \sfrac{t^i}{i!} \mathbb{E}(X^i) & \text{by linearity of expectation} \\
+			       \intertext{Therefore, for some natural $k$,}
+			M_X^{(k)}(0) &= \sum_{k \leq i \in \mathbb{N}_0} \sfrac{0^{i-k}}{(i-k)!} \mathbb{E}(X^i) \\
+			             &= \mathbb{E}(X^k) + \sum_{i \in \mathbb{N}} 0^i \cdot \mathbb{E}(X^i) \\
+				     &= \mathbb{E}(X^k)
+		\end{align*}
+		It should be noted that, strictly speaking, the mgf of $X$ may not exist; this will not be the case for any random variables we 
+		encounter in the context of this course, though. The mgf will
+		carry a larger significance in the discussion of Chernoff bounds in a later chapter. In the mean time, we will note the following
+		properties of the mgf.
+		
+		\begin{theorem}[Uniqueness]
+			Let $X, Y$ be two random variables, with moment-generating functions $M_X, M_Y$, respectively. If there exists a 
+			$\delta > 0$ such that $\forall t \in (-\delta, \delta). M_X(t) = M_Y(t)$, then $\mathrm{Pr}_X = \mathrm{Pr}_Y$.
+		\end{theorem}
+		The uniqueness theorem of the mgf is the formal statement of the claim we have made previously---since the moments of a random 
+		variable can be constructed from its mgf, and the mgf uniquely determines the random variable's probability 
+		distribution, its moments uniquely determine the distribution if the mgf exists, which may not be the case even if all its moments 
+		exist, because the hypothetical Taylor expansion for the mgf may not converge depending on the moments. 
+		Sadly, the proof of this theorem is well beyond an undergraduate level. 
+		
+		\begin{theorem}
+			\label{theorem:summgf}
+			Let $X, Y$ be two random variables. We have that if $X, Y$ are independent,
+			$$
+				M_{X+Y} = \lambda t. M_X(t) M_Y(t)
+			$$
+		\end{theorem}
+		Clearly, this theorem relies on the notion of independence between random variables. Recall that two random variables $X,Y$ are 
+		independent iff $\forall x, y \in \mathbb{R}. \mathrm{Pr}_X(x | Y = y) = \mathrm{Pr}_X(x) \land \mathrm{Pr}_Y(y | X = x) = 
+		\mathrm{Pr}_Y(y)$. Recall that this means $\mathrm{Pr}_{X,Y}(x,y) = \mathrm{Pr}_X(x)\mathrm{Pr}_Y(y)$, which further implies
+		$\mathbb{E}(X \cdot Y) = \mathbb{E}(X) \cdot \mathbb{E}(Y)$. We can now easily see why the theorem holds true:
+		\begin{proof}
+			So assume that $X,Y$ are independent random variables with mgfs $M_X, M_Y$. Then
+			\begin{align*}
+				\forall t . M_{X+Y}(t) &\coloneqq \mathbb{E}(\exp(t(X+Y))) \\
+				                       &= \mathbb{E}(\exp(tX)\cdot\exp(tY)) \\
+						       \intertext{And since, if $X,Y$ are independent, so are $\exp(tX), \exp(tY)$:} 
+						       &= \mathbb{E}(\exp(tX))\cdot \mathbb{E}(\exp(tY)) \\ 
+						       &= M_X(t) \cdot M_Y(t)
+			\end{align*}
+		\end{proof}
+	
+	\section{A First Look at Probabilistic Computation}
+		In this section, we will first revisit a random process we had seen earlier and analyse it more thoroughly. Then we will consider 
+		different randomised algorithms and analyse their properties, determining why it makes sense to tackle the underlying problems
+		with a probabilistic algorithm rather than a deterministic one. Finally, we will introduce a method to prove the existence of 
+		desirable structures.
+	
+	\subsection{Balls Into Bins}
+		First we will place our attention on the random process of repeatedly throwing balls into bins. More specifically, now we 
+		consider throwing $n$ balls, each of which will enter one of $m$ bins uniformly at random, independently form all other balls.
+		Logical equivalents of this process are vital in many areas of computer science; it can model load balancing over a cluster of
+		servers, or an idealised hash function in which each hash is equally likely to be generated.
+
+		As an application of the union bound discussed earlier, we will first consider the probability that with a given $m$, all bins
+		contain at least one ball after the process concludes. In particular, we consider the case where for some $C \in \mathbb{R}^+$,
+		$m = n \ln n + Cn$.
+		\begin{claim}
+			If $m = n\ln n + Cn$ (for a real $C>0$) balls are assigned uniformly and independently at random into $n$ bins,
+			the probability that no bin remains empty is at least $1- e^{-C}$.
+		\end{claim}
+		\begin{proof}
+			Index the bins with integers $1 \hdots n$, then call the event that bin $i$ remains empty $\mathcal{E}_i$. 
+			Since each of the balls is assigned to a bin independently from the others, if we denote with $\mathcal{A}_{k,j}$ 
+			the event that ball $k$ is assigned to bin $j$, then 
+			\begin{align*}
+				\mathbb{P}(\mathcal{E}_i) &= \prod_{k=1}^m \mathbb{P}(\Omega \setminus \mathcal{A}_{k, i}) \\
+			\intertext{Since the balls are assigned uniformly at random, $\mathbb{P}(\mathcal{A}_{k,i}) = n^{-1}$, so this is}
+				                          &= (1 - n^{-1})^m & \text{by part (2) of lemma \ref{lemma:basicprobs}} \\
+			\intertext{Therefore, the event $\mathcal{E}$ that any bin remains empty has}
+				\mathbb{P}(\mathcal{E})   &= \mathcal{P}\left(\bigcup_{i} \mathcal{E}_i \right) \\
+				                          &\leq \sum_i \mathbb{P}(\mathcal{E}_i) &\text{by the union bound}\\
+							  &= n (1-n^{-1})^m = n(1-n^{-1})^{n\ln n +Cn} \\
+							  &\leq n \exp(-\ln n + C) & \text{since $\forall x \in \mathbb{R}. 1+x \leq e^x$.}\\
+							  &= e^{-C} 
+			\end{align*}
+			\vspace{-1.5em}
+		\end{proof}
+		
+		We may, however care more about the expected number of balls needed before no empty bins remain. So consider the random 
+		variable $M$ that takes value $m$ if the last empty bin is hit by ball $m$. We inspect $\mathbb{E}(M)$:
+		\begin{claim}
+			With the above definitions, the expected value $\mathbb{E}(M)$ is no more than $n \ln n + r$, where $r \in O(n)$.
+		\end{claim}
+		The proof of this claim depends on the following two lemmas:
+		\begin{lemma}[Tail Bound]
+			Let $X$ be a discrete random variable. Then $\forall x. \mathbb{P}(X \geq x) \geq \mathbb{P}(X > x)$.
+		\end{lemma}
+		The tail bound is obviously true because $\mathbb{P}(X=x)$ is nonnegative for all $x$. Much less obvious is the following:
+
+		\begin{lemma}
+			\label{lemma:assess_two}
+			Let $X$ be a discrete random variable taking nonnegative integer values. Then 
+			$$
+				\mathbb{E}(X) = \sum_{x \in \mathbb{N}_0} \mathbb{P}(X > x)
+			$$
+		\end{lemma}
+		\begin{proof}[Proof of lemma \ref{lemma:assess_two}]
+			\begin{align*}
+				\sum_{x=0}^{\infty}\mathbb{P}(X > x) &= \sum_{x=0}^{\infty} \sum_{i=x+1}^{\infty} \mathbb{P}(X=i)\\
+				                                     &= \sum_{i=1}^{\infty} \sum_{x=0}^{i-1} \mathbb{P}(X=i) \\
+								     &= \sum_{i=1}^{\infty} i \mathbb{P}(X=i) \\
+								     &= \sum_{i=0}^{\infty} i \mathbb{P}(X=i) \\
+				                                     &= \mathbb{E}(X)
+			\end{align*}
+		\end{proof}
+		With these two lemmas, we can now prove the earlier claim:
+		\begin{proof}
+			Note that with our bound on the probability that a particular bin remains empty after $n \ln n + Cn$ balls implies that
+			$\mathbb{P}(M > n \ln n + Cn) \leq e^{-C}$. Then, 
+			\begin{align*} 
+				\mathbb{E}(M) &= \sum_{m \in \mathbb{N}_0}\mathbb{P}(M > m) \\
+				              &\leq \sum_{m = 0}^{n\ln n + n -  1} (1) + \sum_{m = n \ln n + Cn}^{\infty}\mathbb{P}(M>m) \\
+					      &\leq n \ln n + n + \sum_{k\in \mathbb{N}} n \mathbb{P}(M > n \ln n + kn) \\
+					      &\leq n \ln n + n + n\cdot \sum_{k \in \mathbb{N}} e^{-k} \\
+					      &= n + \ln n + r
+			\end{align*}
+			with $r\in O(n)$, since the last sum converges to a constant.
+		\end{proof}
+
+	\subsection{MaxCut}
+		We now turn our attention to an application of ranomised computation. Recall from \textsc{Ia} Algorithms that, given an 
+		undirected graph $G = (V, E)$, a \emph{maximum cut} of $G$ is a partition of $V$ into sets $S, E\setminus S$ such that the number of edges
+		between $U$ and $W$ is maximised. Denote this number as $e(S) \coloneqq | \{\{u,v\} \in E : u \in S \land v \notin S\} |$. \par
+		The task of finding such maximum cuts has a large number of applications, but is, in gneral, NP-hard. We will see that, by using
+		a randomised algorithm, we will obain a much-better-than-exponential-run-time algorithm that will approximate maximum cuts. \par
+
+		So consider the randomised process presented in listing \ref{listing:randmaxcut}:
+\begin{lstlisting}[caption={Algorithm RandMaxCut},label=listing:randmaxcut,language=python,style=mystyle]
+def randMaxCut(G):
+	U =  {}
+	for v in G.V:
+		if random() < 0.5:
+			s.add(v)
+	return s
+\end{lstlisting}
+		One execution of RandMaxCut on a given graph $G = (V,E)$ will obviously always run in linear time. We now examine the expected
+		approximation factor for a maximum cut of RandMaxCut, but first it may prove useful to identify clearly the probability space
+		$(\Omega, \mathcal{F}, \mathbb{P})$ that RandMaxCut generates. This probability space has
+		\begin{itemize}
+			\item $\Omega = \{0,1\}^n$, each outcome is a cut $(S, V \setminus S)$ represented by an $n$-dimensional vector 
+			$\mathbf{b}$ (where $n = |V|$) in which $b_i$ is $1$ if $i \in S$ and $0$ otherwise. Such a sample space is also 
+			known as a \emph{product space}.
+			\item $\mathcal{F} = \mathcal{P}(\Omega)$; particularly interesting events may include 
+			$\langle i \in S \rangle = \{\mathbf{b} : b_i = 1\}$.
+			\item $\mathbb{P} = \lambda \mathcal{E} \in \mathcal{F}. | \mathcal{E} | / | \mathcal{F} |$. For example, the event 
+			$\langle i \in S \rangle$ has $\mathbb{P}(\langle i \in S \rangle) = \sfrac{1}{2}$ since its complement in 
+			$\mathcal{F}$ is cleary in bijection with it, so $2 \mathbb{P}(\langle i \in S \rangle) = 1$.
+		\end{itemize}
+		
+		\begin{claim}
+			One execution of RandMaxCut returns a $\sfrac{1}{2}$ approximation of a maximum cut.
+		\end{claim}
+		\begin{proof}
+			Let $\langle \phi \rangle$ denote the event of outcomes where the formula $\phi$ holds true, then we first arrive at 
+			an expression for $\mathbb{E}(e(S))$, where $S$ is the set output by RandMaxCut.
+			\begin{align*}
+				\mathbb{E}(e(S)) &= \mathbb{E}\left(\sum_{\{u,v\} \in E} 1[\langle u \in S \land v \notin S\rangle \cup \langle 
+				                 u \notin S \land v \in S \rangle]\right) \\
+				                 &= \sum_{\{u,v\} \in E} \mathbb{E}(1[\langle u \in S \land v \notin S\rangle \cup \langle u 
+						 \notin S \land v \in S \rangle]) \\
+				                 &= \sum_{\{u,v\} \in E} \mathbb{P}(\langle u \in S \land v \notin S\rangle \cup \langle u 
+						 \notin S \land v \in S \rangle) \\
+				                 &= \sum_{\{u,v\} \in E} \big(\mathbb{P}(\langle u \in S \land v \notin S\rangle)  + 
+						 \mathbb{P}(\langle u \notin S \land v \in S \rangle)\big) \\
+				                 &= 2 \cdot \sum_{\{u,v\} \in E} \mathbb{P}(\langle u \in S \land v \notin S\rangle) \\
+				                 &= 2 \cdot \sum_{\{u,v\} \in E} \mathbb{P}(\langle u \in S\rangle) 
+						 \mathbb{P}(\langle v \notin S\rangle) \\
+				                 &= \frac{|E|}{2}
+			\end{align*}
+			So since the resulting cut has expected size $0.5 |E|$, and any maximum cut $(T, V\setminus T)$ can have at most
+			$e(T) = E$, in expectation the cut returned by RandMaxCut approximates a maximum cut by factor of at least 
+			$\sfrac{1}{2}$.
+		\end{proof}
+
+		We proceed now to expand the algorithm that will still run in polynomial time, but now return such an approximation with 
+		arbitrarily high probability. Consider the algorithm IterRandMaxCut presented in listing \ref{listing:iterrandmaxcut}:
+		\begin{lstlisting}[caption={Algorithm IterRandMaxCut},label=listing:iterrandmaxcut,style=mystyle,language=python]
+def iterrandmaxcut(G, C):
+	t = size(G.E) * C
+	cut = {}		# track biggest cut found
+	repeat t times:
+		s = randmaxcut(G)
+		cut = s if e(s) > e(cut) else cut
+		\end{lstlisting}
+		It should be reasonably obvious that IterRandMaxCut runs in polynomial time, as the time it takes to determine the size of
+		the cut will be in $O(|E|)$, and is repeated $t \in O(|E|)$ times. Now, we turn to the probability that we successfully 
+		find an acceptable approximation for a maximum cut. 
+		
+		\begin{claim}
+			The execution of IterRandMaxCut($G$, $C$) will return a `successful' approximation of a maximum cut with 
+			probability at least $1- e^{-C}$.
+		\end{claim}
+		\begin{proof}
+			Let $p$ denote $\mathbb{P}(e(S) \geq \sfrac{|E|}{2})$. Then recall that $\mathbb{E}(e(S)) = \frac{|E|}{2}$, so
+			we have that 
+			\begin{align*}
+				\sfrac{|E|}{2} &= \sum_{i=1}^{\sfrac{|E|}{2}-1} i \mathbb{P}(e(S) = i) + 
+				               \sum_{j=\sfrac{|E|}{2}}^{|E|} j \mathbb{P}(e(S) = j) \\
+					       &\leq (\sfrac{|E|}{2} - 1) \cdot \sum_{i=1}^{\sfrac{|E|}{2}-1} \mathbb{P}(e(S) = i) + 
+				               |E| \cdot \sum_{j=\sfrac{|E|}{2}}^{|E|} \mathbb{P}(e(S) = j) \\
+					       &= (\sfrac{|E|}{2} - 1) \cdot (1-p) + |E| \cdot p \\
+				\therefore p &\geq \left(\sfrac{|E|}{2} +1 \right)^{-1}
+			\end{align*}
+			Since each iteration of RandMaxCut is executed independently from the others, we have that the probability that
+			no cut found will be a successful approximation is 
+			$$
+				\mathbb{P}\left(\bigcap_{i = 1}^{C|E|}e(S_i) < \sfrac{|E|}{2}\right) = (1-p)^{c|E|} \leq 
+				\left(1 - (\sfrac{|E|}{2} +1 )^{-1}\right) \leq \exp\left(-\frac{C|E|}{\sfrac{|E|}{2} - 1}\right)
+				\leq e^{-C}
+			$$
+		\end{proof}
+		
+		The final property of RandMaxCut we will consider is a probability bound on the size of the cut returned by \emph{one}
+		iteration of RandMaxCut. We will show that for large graphs with many edges, one iteration will besufficient
+		to find a successful approximation with high probability. 
+
+		\begin{claim}
+			For any $C \in \mathbb{R}^+$, one iteration of RandMaxCut returns a cut $(S, V\setminus S)$ with $e(S) \geq 
+			\sfrac{|E|}{2} - \sqrt{C\cdot|E|}$ with probability at least $1 - C^{-1}$. 
+		\end{claim}
+		\begin{proof}
+			Let us first denote by $X_{u,v} \coloneqq 1[\langle u \in S \iff v \notin S \rangle]$. Then note that, due 
+			to the symmetry and independence between any distinct vertices $t,u,v,w$ we have $\mathbb{E}(X_{t,u}X_{v,w})
+			= \mathbb{E}(X_{t,u}X_{t,w}) = \mathbb{E}(X_{t,u}X_{v,u}) = \sfrac{1}{4}$, since 
+			\begin{align*}
+				\mathbb{E}(X_{t,u}X_{v,w}) &= \mathbb{P}(\langle t \in S \iff u \notin S \rangle) \cdot 
+				                           \mathbb{P}(\langle v \in S \iff w \notin S \rangle)&\text{by independence,}\\
+						\intertext{which is, by the symmetry of what set each vertex is assigned to,}
+							   &= 2 \mathbb{P}(\langle t \in S \land u \notin S \rangle) \cdot 
+							   2 \mathbb{P}(\langle v \in S \land w \notin S \rangle)\\
+							   &= 4 (\mathbb{P}(v \in S))^4 \\
+							   &= \sfrac{1}{4}
+			\end{align*}
+			Similar arguments can be made for the other two equivalences, the independence of each vertex assignment 
+			is intuitively almost sufficient already, though. \par
+			Therefore, we calculate the variance of $e(S)$ as follows:
+			\begin{align*}
+				\mathbb{E}\left((e(S))^2\right) &= \mathbb{E}\left(\left(\sum_{\{u,v\} \in E} X_{u,v}\right)^2\right)\\
+				                                &= \sum_{\{u,v\}\in E}\sum_{\{x,y\}\in E}\mathbb{E}(X_{u,v}X_{x,y})
+								\\
+								&= \sum_{\{u,v\}\in E} \mathbb{E}X_{u,v}^2 + \sum_{\{u,v\}\in E}
+								\sum_{\{u,v\}\neq\{x,y\}\in E} \mathbb{E}(X_{u,v}X_{x,y}) \\
+								&\leq \sum_{\{u,v\} \in E} \mathbb{E}(X_{u,v}) + \sum_{\{u,v\}\in E}
+								\sum_{\{x,y\}\in E} \mathbb{E}(X_{u,v}X_{x,y}) \\
+								&= \mathbb{E}(e(S)) + \sfrac{|E|^2}{4} \\
+							\intertext{So}
+					     \mathrm{var}(e(S)) &= \mathbb{E}\left((e(S))^2\right) \\
+					                        &\leq \mathbb{E}(e(S))
+			\end{align*}
+			Now recall the alternative form of the Chebyshev bound presented earlier: If $\sigma \coloneqq 
+			\sqrt{\mathrm{var}(e(s))}$, then for any $k \in \mathbb{R}^+$, $\mathbb{P}(|e(S) - \mathbb{E}(e(S))| \geq 
+			k\sigma) \leq k^{-2}$. Therefore, for some $K \in \mathbb{R}^+$, with $C \coloneqq K^2$:
+			\begin{align*}
+				& \mathbb{P}(e(S) \leq \mathbb{E}(e(S)) - \sqrt{C |E|}) \\
+				\leq& \mathbb{P}(|e(S) - \mathbb{E}(e(S))| \geq K\sqrt{|E|}) \\
+				\intertext{and, by the tail bound (twice)}
+				\leq& \mathbb{P}(|e(S) - \mathbb{E}(e(S))| \geq K\sqrt{\mathbb{E}(e(S))}) \\ 
+				\leq& \mathbb{P}(|e(S) - \mathbb{E}(e(S))| \geq K\sqrt{\mathrm{var}(e(S))}) \\
+				\leq&C^{-1}
+			\end{align*}
+		\end{proof}
+		
+		We can rephrase this result as follows: Since the size of a maximum cut in a graph is bounded above by $|E|$, we have
+		that
+		\begin{lemma}
+			For any $\epsilon > 0$, there exists a $T$ such that, for any graph $G=(V, E)$, if $|E| > T$, one iteration 
+			of RandMaxCut returns an at least $\sfrac{1}{2} - \epsilon$ approximation of a maximum cut with probability at 
+			least $1 - \epsilon$.
+		\end{lemma}
+		\begin{proof}
+			Take some $\epsilon > 0$, then let $C = \epsilon^{-1}$. Now, let $M$ be the size of an actual maximum cut for
+			$G = (V,E)$. Then
+			\begin{align*}
+				           && \mathbb{P}\left(e(S) \geq \sfrac{|E|}{2}-\sqrt{|E|C}\right)& \geq 1 - \sfrac{1}{C} \\
+				\therefore && \mathbb{P}\left(\frac{e(s)}{M} \geq \frac{|E|}{2M}-\sqrt{\frac{|E|}{\epsilon M^2}}\right) 
+				           & \geq 1-\epsilon \\
+				\therefore && \mathbb{P}\left(\frac{e(s)}{M} \geq \sfrac{1}{2} - (\epsilon |E|)^{-\sfrac{1}{2}}\right) 
+				           & \geq 1-\epsilon \\
+				\intertext{So, by the tail bound, for $T = \epsilon^{-3}$, if $|E| > T$,}
+				           && \mathbb{P}\left(\frac{e(s)}{M} \geq \sfrac{1}{2} - \epsilon\right) 
+				           & \geq 1-\epsilon
+			\end{align*}
+		\end{proof}
+		This is an example of an event that occurs \emph{with high probability}: For an event $\mathcal{E}$ with (implicit) 
+		parameter $n$, we say that $\mathcal{E}$ occurs w.h.p.\ if $\lim_{n \rightarrow \infty}(\mathbb{P}(\mathcal{E})) = 1$.
+		For this example, the parameter is the size of the graph in terms of the number of its edges.
+
+	\subsection{The Probabilistic Method}
+		Finally, we move our attention to a powerful method of proving the existence of members of a class of mathematical 
+		objects with a certain property; the \emph{probabilistic method} as pioneered by Paul Erd\H{o}s. \par 
+		The underlying concept
+		for this proof method is the following: If all members of a class o objects do \emph{not} exhibit a certain property,
+		then if we choose random members from it subject to \emph{any} probability space, the probability that the chosen
+		objects exhibit the desired property is clearly 0. Therefore, by the contrapositive, if we can show that under a given 
+		probability space of randomly choosing objects from the collection, there is a positive probability that they will 
+		satisfy the property, such objects \emph{must} exist, even though the proof is probabilistic. \par
+		For example, consider lemma \ref{lemma:halfcutsexist}, which we will prove using the probabilistic method.
+		\begin{lemma}
+			\label{lemma:halfcutsexist}
+			Let $G = (V, E)$ be \emph{any} undirected graph. Then there exists a cut $(S, V\setminus S)$ with size 
+			$e(s) \geq \left\lceil\sfrac{|E|}{2}\right\rceil$.
+		\end{lemma}
+		\begin{proof}
+			We had shown before that, by choosing a cut $(S, V\setminus S)$ randomly from among all cuts of graph $G$ 
+			by executing RandMaxCut, we have 
+			$$
+				\mathbb{P}\left(e(S) \geq \sfrac{|E|}{2}\right) \geq \left(\sfrac{|E|}{2} + 1\right)^{-1} > 0
+			$$
+			Therefore, a cut of size $\left\lceil\sfrac{|E|}{2}\right\rceil$ mut exist for $G$.\par
+			In fact, the proof would already have been complete when we established that $\mathbb{E}(e(S)) = 
+			\sfrac{|E|}{2}$, since clearly, for any discrete random variable $X$, $X$ takes values $x \geq \mathbb{E}$
+			and values $y \leq \mathbb{E}(X)$ with positive probabilities.
+		\end{proof}
+
+		\subsubsection*{The Erd\H{o}s-Ko-Rado Theorem}
+			In a result strictly speaking unrelated to the probabilistic method, we obtain a bound on the size of 
+			intersecting\footnote{A family of sets is called intersecting if the intersection of any two of its elements 
+			is non-empty.} families of $k$-element subsets of an $n$-set. The proof we will demonstrate is in the spirit
+			of the probabilistic method, however, and is far more elegant than the proof published originally.\par 
+			Let $[n] \coloneqq \{0 \hdots n-1\}$, and let
+			the binomial co\"efficient of $n, r$ be denoted $\binom{n}{r}$, and $\oplus, \ominus$ be addition and 
+			subtraction modulo $k$, respectively. 
+
+			\begin{theorem}
+				Let $k,n$ be natural numbers with $n \geq 2k$. If $\mathcal{I}$ is an intersecting family of 
+				$k$-element subsets of $[n]$, then $|\mathcal{I}| \leq \binom{n-1}{k-1}$.
+			\end{theorem}
+			\begin{proof}
+				Let $A_j \coloneqq \{j \hdots j \oplus k \ominus 1\}$, and fix an $s \in [n]$. Then for every
+				$0 \leq l < k$ consider $(A_{s\ominus l}, A_{s\oplus k\ominus l})$, and note that the two sets in 
+				each such pair are disjoint since $n \geq 2k$. This illustrates that, for all $i$ s.t. $A_i \in 
+				\mathbb{I}$ all other $A_j \in \mathbb{I}$ have $j \equiv i \pm r \pmod{k}$ for some $0 \leq 
+				r < k$, that is, at most $k$ sets $A_i$ can be in $\mathcal{I}$. $(*)$ \par
+				Let now $\Pi_n$ denote the set of permutations of $[n]$, and let $\Pi$ be a random variable drawn 
+				uniformly from the indeces $\pi$ of the permutations (and abuse the notation to let $\pi$ also denote 
+				the permutation $\in \Pi_n$ indexed by it). Then let $i$ be chosen uniformly from $[n]$, and take, 
+				for some $\Pi = \pi$, $ B \coloneqq \{\pi(j) : j \in A_i\}$. Note the two insights below:
+				\begin{enumerate}
+					\item Since $\pi$ is chosen uniformly, $B$ is a uniformly chosen-at-random $k$-element subset
+					of $[n]$. Therefore $\mathbb{P}(\langle B \in \mathcal{I} \rangle) = 
+					\sfrac{|\mathcal{I}|}{\binom{n}{k}}$.
+					\item Since $B$ is just a `relabelling' of $A_i$, we have that, by $(*)$, 
+					$\mathbb{P}(\langle B \in \mathcal{I} \rangle | \Pi = \pi) = \mathbb{P}(\langle A_i \in 
+					\mathcal{I} \rangle) \stackrel{(*)}{=} \sfrac{k}{n}$.
+				\end{enumerate}
+				If we now combine these, we get
+				\begin{align*}
+					|\mathcal{I}| &= \binom{n}{k} \cdot \mathbb{P}(\langle B \in \mathcal{I}\rangle) \\
+					              &= \binom{n}{k} \cdot \sum_{\pi \in \Pi_n} \mathbb{P}(\langle B \in 
+						      \mathcal{I}\rangle | \Pi = \pi) \mathbb{P}(\Pi = \pi)\\
+						      &\leq \sfrac{k}{n} \binom{n}{k} \sum_{\pi \in \Pi_n} \mathbb{P}(\Pi = \pi)\\
+						      &= \frac{(n-1)!}{(k-1)!(n-k)!} \\
+						      &= \binom{n-1}{k-1}
+				\end{align*}
+			\end{proof}

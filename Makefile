@@ -1,0 +1,3 @@
+notes: Probability_and_Computation.tex
+	xelatex Probability_and_Computation.tex
+	xelatex Probability_and_Computation.tex

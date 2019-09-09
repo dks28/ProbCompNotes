@@ -1,0 +1,42 @@
+\chapter*{Introduction}
+\addcontentsline{toc}{chapter}{Introduction}
+
+	\paragraph{About this document.}
+	This document is intended to serve as an exhaustive collection 
+	of material for the Unit of Assessment ‘Probability and Computation’ in Part II of the
+	Computer Science Tripos at the University of Cambridge, as lectured by Dr John Sylvester,
+	Dr Nicolás Rivera, Dr Luca Zanetti and Dr Thomas Sauerwald.\par
+	It  has  been  based  heavily off the lecture slides as provided by the lecturers for the academic year  
+	2018/2019\footnote{Note that apparently the course content is subject to change},  but  
+	aims  to  exhibit  more  thorough  explanations  and  provide
+	some additional content where this may be helpful.  Some of the material also covered by
+	the recommended reading for this Unit, Michael Mitzenmacher and Eli Upfal’s ‘Probability
+	and Computing’ has been drawn from there rather than the lecture notes, but care has
+	been taken to ensure all examinable material has been covered. \par
+	Of course, some details may
+	have been distorted by me misunderstanding them in the lecture slides.  Any inaccuracies in 
+	mathematical arguments or other mistakes are thus, with high probability, mine; should such 
+	mistakes be found I would be grateful should these be pointed out to me by e-mail at 
+	dks28@cam.ac.uk. 
+	
+	\paragraph{About its content.}
+	The course is an introduction to various kinds of randomised computation, and the important 
+	mathematical concepts supporting it.  By ‘randomised compu-tation’, we understand any 
+	algorithm or other instance of computation which has a randomised or probabilistic aspect.  
+	Most commonly, this will feature making nondeterministic choices that will lead the algorithm 
+	to return a correct result with some probability---this is of course only worth our while if 
+	we gain a performance boost over a known deterministic algorithm where the result is always 
+	correct.\par
+	At other times, we consider determinsitic algorithms that operate on randomised inputs. One 
+	example for such a computation is the well-known Bucket Sort algorithm, which, albe\"it 
+	deterministic, assumes that the input of numbers to be sorted has been drawn from a known 
+	probability distribution to achieve an expected improvement over the theoretical lower bound 
+	for the run-time of a sorting algorithm.\par 
+	This  course  will,  in  addition,  explore  many  further  mathematical  concepts  in  
+	probability theory, such as random walks and Markov chains, and establish many important 
+	mathematical techniques in working with probability theory, such as introducing a number of 
+	probability bounds for deviations from the expected value of a distribution. \par
+	Each of the aforementioned lecturers will focus on their own topics, so this document is 
+	separated logically into four parts,  corresponding to each of the lecturers’ sections of the 
+	course respectively.  As such, the four parts of these notes focus on Markov Chains, Martingales, 
+	Random Graphs and Sublinear Algorithms, respectively.
