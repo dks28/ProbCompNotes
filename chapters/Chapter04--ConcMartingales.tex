@@ -833,7 +833,7 @@
 			\item[\namedlabel{theorem:condexpnest}{\ref{theorem:condexp}.1}] 
 			$\mathbb{E}(\mathbb{E}(Y|X))=\mathbb{E}(Y)$
 			\item[\namedlabel{theorem:condexpconst}{\ref{theorem:condexp}.2}] 
-			$\mathbb{E}i({1 | X}) = 1$
+			$\mathbb{E}({1 | X}) = 1$
 			\item[\namedlabel{theorem:condexplin}{\ref{theorem:condexp}.3}]
 			Linearity of Expectation:
 			$\forall c \in \mathbb{R}.\mathbb{E}(cX+Y|Z)=
@@ -976,10 +976,12 @@
 		with respect to $(X_s)_{s\in S}$ if $\forall s \in S, t\preceq s . \mathbb{E}(Z_{s
 		} | \{X_\tau : \tau \leq t\}) \geq Z_t$, where an analogous definition applies to
 		\emph{supermartingales}. \\
-		Finally, the reader should note that the scope of this course will only include 
+		Further, the reader should note that the scope of this course will only include 
 		what is known as \emph{discrete-time martingales}, where the index set $S$ is 
 		countable. The definition given here also considers \emph{continuous-time 
-		martingales} for the sake of completeness.
+		martingales} for the sake of completeness. \\
+		Finally, we call a stochastic process $(X_s)_{s\in S}$ simply a martingale when it 
+		is a martingale with respect to itself.
 	\end{comment}
 
 	To clarify the definition given above, we shall consider the following example. Consider 
@@ -1011,5 +1013,54 @@
 			&= S_n^2 - n
 		\end{align*}
 	\end{itemize}
+	
+	Now, as a further example, it may be interesting to consider the more general case, where 
+	eachof the $X_i$ is distributed according to $\mathbb{P}(X_i=1) = p \land \mathbb{P}(X_i=-1
+	) = q$ for some real $p,q > 0$ such that $p+q=1$.\\
+	If we again define the stochastic process $(S_n)_{n\in\mathbb{N}}$ by $S_n = k + 
+	\sum_{i=1}^{i=n} X_i$, then $(S_n)_{n\in\mathbb{N}}$ is not a martingale with respect to $(
+	X_n)_{n\in\mathbb{N}}$, since the third axiom fails to apply when $p\neq q$ (because the 
+	expectation of $S_{n+1}$ will be distinct from the value of $S_n$). However, if we define 
+	the stochastic process $(Z_n)_{n\in\mathbb{N}}$ by $\forall n \in \mathbb{N} . Z_n = 
+	(\sfrac{p}{q})^{S_n}$, then we can deduce that $(Z_n)_{n \in \mathbb{N}}$ is indeed such a 
+	martingale, since
+	\begin{itemize}
+		\item $Z_n$ is clearly a function of $X_1 \hdots X_n$.
+		\item $\mathbb{E}(Z_n) \leq \mathbb{E}(|Z_n|) \leq \max(\sfrac{p}{q}, 
+		\sfrac{q}{p})^n < \infty$
+		\item $\mathbb{E}(Z_{n+1} | (X_i)_{i=1}^{i=n}) = p\cdot(\sfrac{q}{p})^{S_n + 1}
+		+q\cdot(\sfrac{q}{p})^{S_n-1} = Z_n \cdot (p\cdot \sfrac{q}{p} + 
+		q\cdot\sfrac{p}{q}) = Z_n$
+	\end{itemize}
+
+	As final example, we shall again take the `Balls into Bins' process. So let $X_i$ denote 
+	the index of the bin to which ball $i$ is assigned, and then let $Y_j$ be the indicator
+	variable of whether bin $j$ is empty after all $m$ balls have been assigned. Then let 
+	$Z \coloneqq \sum_{i=1}^{i=n} Y_i$ denote the number of empty bins after the process is 
+	over. Finally, define $\forall t \in \mathbb{N} . Z_t \coloneqq \mathbb{E}(Z | (X_i)_{i=1
+	}^{i=t})$, then $(Z_t)_{t=1}^{t=m}$ i a martingale with respect to $(X_t)_{t=1}^{t=m}$, 
+	since
+	\begin{itemize}
+		\item the bin assignments up to any time $t$ determine how many bins are empty at $
+		t$, and therefore how many bins are expected to be empty at the end, thus $Z_t$ is 
+		a function of $X_1\hdots X_t$.
+		\item $\mathbb{E}(|Z_t|) = \mathbb{E}(Z_t) = \mathbb{E}(Z) \leq n < \infty$
+		\item $\mathbb{E}(Z_{t+1} | (X_i)_{i=1}^{i=t}) = 
+		\mathbb{E}\left(\mathbb{E}\left(Z|(X_i)_{i=1}^{i=t+1}\right)| (X_j)_{j=1}^{j=t}\right) =
+		\mathbb{E}(Z | (X_j)_{j=1}^{j=t}) =  Z_t$.
+	\end{itemize}
+
+	In fact, this last example is a specific instance of a construct that is always a 
+	martingale with respect to some given stochastic process, the \emph{doob martingale}.
+	\begin{definition}[Doob Martingale]
+		Let $(X_t)_{t\in T}$ be some stochastic process with discrete index set $T$, and 
+		let $Y$ be
+		some random variable such that $\mathbb{E}(|Y|) \leq \infty$, where usually $Y$
+		is a function of the $X_t$, indeed let $Y \coloneqq f \circ X$ for some 
+		$f \in \mathbb{R}\rightarrow\mathbb{R}$. Then, defining $Z_t \coloneqq 
+		\mathbb{E}(Y| (X_i)_{i\in
+		\{s\in T : s \preceq t \}})$, $(Z_t)_{t\in T}$ is the \emph{doob martingale for $f
+		$} with respect to $(X_t)_{t\in T}$.
+	\end{definition}
 
 \section{Concentration and Martingales}
