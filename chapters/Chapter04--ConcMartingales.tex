@@ -1051,7 +1051,7 @@
 	\end{itemize}
 
 	In fact, this last example is a specific instance of a construct that is always a 
-	martingale with respect to some given stochastic process, the \emph{doob martingale}.
+	martingale with respect to some given stochastic process, the \emph{Doob martingale}.
 	\begin{definition}[Doob Martingale]
 		Let $(X_t)_{t\in T}$ be some stochastic process with discrete index set $T$, and 
 		let $Y$ be
@@ -1059,8 +1059,321 @@
 		is a function of the $X_t$, indeed let $Y \coloneqq f \circ X$ for some 
 		$f \in \mathbb{R}\rightarrow\mathbb{R}$. Then, defining $Z_t \coloneqq 
 		\mathbb{E}(Y| (X_i)_{i\in
-		\{s\in T : s \preceq t \}})$, $(Z_t)_{t\in T}$ is the \emph{doob martingale for $f
+		\{s\in T : s \preceq t \}})$, $(Z_t)_{t\in T}$ is the \emph{Doob martingale for $f
 		$} with respect to $(X_t)_{t\in T}$.
 	\end{definition}
 
+	Let us also consider this further example of a Doob martingale, that illustrates the 
+	concept of \emph{exposure martingales}, that model the expectation of some numerical 
+	quantity as progressively more information is being `exposed', as well. Suppose that 
+	$G = (V, E) \sim \mathcal{G}(n, p)$ is a random graph drawn from the Erd\H{o}s-R\'enyi 
+	distribution with parameters $n$ and $p$. That is, $V = [n]$ and $\forall i\neq j \in [n] 
+	. \mathbb{P}(\{i,j\} \in E) = p$, where each edge occurs independently from any other 
+	edges. \\
+	Let now $e \in \{\{i,j\} \in \mathcal{P}([n]) : i \neq j\} \rightarrow \mathbb{N}_0$ be
+	an enumeration of the set of all possible edges such that $\mathrm{range}(e) = 
+	[\binom{n}{2}]$ and define\footnote{Recall that $[k] = \{0 \hdots k-1\}$.} $m \coloneqq 
+	\binom{n}{2} - 1$. Hence, let $X_i$ denote the indicator random variable of whether
+	$e^{-1}(i) \in E$.\\
+	Further, suppose that $Q$ be some function that assigns each finite graph a numerical 
+	quantity, such as the number of connected components, the number of its edges, etc., and 
+	let $Z_i \coloneqq \mathbb{E}(Q(G) | (X_j)_{j=0}^{j=i})$. Then $(Z_i)_{i \in 
+	[\binom{n}{2}]}$ is the Doob martingale for $Q$ with respect to 
+	$(X_i)_{i\in[\binom{n}{2}]}$, and in particular is known as the edge-exposure martingale. 
+	As mentioned, this notion models a gradual `exposure' of information about the graph, 
+	meaning that $Z_i$ is our best prediction for $Q(G)$ after we have learned the state of $i$
+	potential edges.\\
+	A similar notion is that of the vertex-exposure martingale, where we define 
+	$G_i = (V_i, E_i)$ by $V_i = [i+1]$ and $E_i \subseteq E \coloneqq \{\{u, v\}\in E : 
+	\{u, v\} \subseteq V_i\}$. The vertex-exposure martingale $(Z_i)_{i\in[n]}$ for $Q$ with 
+	respect to $(G_i)_{i\in[n]}$ is then defined by $Z_i = 
+	\mathbb{E}(Q(G) | (G_k)_{k=0}^{k=i})$. 
+
 \section{Concentration and Martingales}
+	In this section, we shall use martingales and the properties they provide  to derive 
+	concentration results that will make many arguments easier to conclude, once martingale 
+	properties have been established. The first of these results is very similar to that of 
+	theorem \ref{theorem:chernoff-hoeffding}, whereas the second provides a bound on certain 
+	functions of random variables. 
+
+	\subsection{The Azuma-Hoeffding Inequality}
+	We now introduce a concentration inequality for martingales that looks (and is proven very 
+	similarly as) the Chernoff-Hoeffding Inequality; indeed, the proof essentially follows the 
+	Chernoff technique. It is given in theorem \ref{theorem:azuma-hoeffding}.
+	\begin{theorem}[Azuma-Hoeffding Inequality]
+		\label{theorem:azuma:hoeffding}
+		Suppose $(X_t)_{t \in \mathbb{N}_0}$ is a stochastic process indexed by the 
+		nonnegative integers. Then if $(Z_t)_{t\in\mathbb{N}_0}$ is a martingale with 
+		respect to $(X_t)_{t\in\mathbb{N}_0}$ such that 
+		$$
+			\forall t . \exists a_t, b_t in \mathbb{R}. Z_{t+1} - Z_t \in [a_t, b_t],
+		$$
+		for any $\epsilon \geq 0$ and $t > 0$, we have that 
+		$$
+			\mathbb{P}(Z_t-Z_0 \geq \epsilon) \leq \exp\left(- \frac{2\epsilon^2}{
+			\sum_{i=1}^{i=t}(b_i-a_i)^2}\right)
+		$$
+		where an analogous result holds for the lower tail.
+	\end{theorem}
+	\begin{proof}
+		Define first the stochastic process $(Y_t)_{t\in\mathbb{N}}$ by $Y_t=Z_t-Z_{t-1}$,
+		and note that, by the martingale properties of the $Z_t$, we have that $\mathbb{E}
+		(Y_t | (X_i)_{i=0}^{i=t-1}) = 0$, such that Hoeffding's Lemma applies. That is,
+		$M_{Y_t | (X_i)_{i=0}^{i=t-1}}(s) \leq \exp \left(\frac{(b_t-a_t)^2s^2}{8}\right)$.
+		\\
+		Thus we can bound $M_{Z_t-Z_0}(s)$ by expressing $Z_k - Z_0$ as the telescoping sum
+		of $(Y_j)_{j=1}^{j=t}$:
+		\begin{align*}
+			\mathbb{E}(\exp(s(Z_t-Z_0)))
+			&= \mathbb{E}\left(\exp\left(\sum_{i=1}^{i=t} s Y_i\right)\right) \\
+			&= \mathbb{E}\left(\prod_{i=1}^{i=t}e^{s Y_i}\right) \\
+			&= \mathbb{E}\left(
+				\mathbb{E}\left(\prod_{i=1}^{i=t}e^{sY_i}\bigg|(X_j)_{j=0}^{j=t-1}
+				\right)\right) & \text{by theorem \ref{theorem:condexpnest}}\\
+			&= \mathbb{E}\left(\prod_{i=1}^{i=t-1}e^{sY_i}
+				\mathbb{E}\left(e^{sY_t}\big|(X_j)_{j=0}^{j=t-1}
+				\right)\right) & \text{by theorem \ref{theorem:condexpfun}}\\
+			&\leq \mathbb{E}\left(\prod_{i=1}^{i=t-1}e^{sY_i}
+				\right) \cdot \exp\left(\frac{(b_t - a_t)^2s^2}{8}\right) \\
+			&\leq \exp\left(\sum_{i=1}^{i=t}\frac{(b_i-a_i)^2s^2}{8}\right)
+		\end{align*}
+		Now, applying Markov's inequality and picking 
+		$s = \frac{4 \epsilon}{\sum_{i=1}^{i=t} (b_i - a_i)^2 }$ yields the result.
+	\end{proof}
+
+	It is fair to think of this, Azuma's inequality, as a variant of the Chernoff-Hoeffding 
+	bound presented in an earlier section, since they are virtually the same---with the 
+	exception that Azuma's inequality applies to martingales, rather than a family of 
+	independent random variables. Next, we shall derive concentration results for such 
+	families of independent random variables using martingales.
+
+	\subsection{The Method of Bounded Differences}
+	Before we derive another concentration result for families of independent random variables,
+	we must consider a classification of multivariate functions based on their range as one 
+	input differs. This classification will be a slightly weaker condition than continuity, 
+	and is known as the function satisfying a \emph{Lipschitz condition}.
+	\begin{definition}[Lipschitz Condition]
+		Let $(Y, \delta)$ be some metric space, and let, for some family of sets $X_1\hdots 
+		X_k$, $f$ be a function $f \in \prod_{i=1}^{i=k} X_i \rightarrow Y$. Then, we say 
+		that $f$ is \emph{Lipschitz with parameter $\mathbf{c} = (c_i)_{i=1}^{i=k}$ with 
+		respect to $(Y, \delta)$}, if it holds that
+		\begin{align*}
+		\forall 1 \leq i \leq k ,\ \mathbf{x} \in\prod_{j=1}^{j=k}X_j,\ 
+		 x_i' \in X_i . \\
+		\delta\left(f\Big((x_j)_{j=1}^{j=i-1}, x_i, (x_j)_{j=i+1}^{j=k}\Big), 
+		f\Big((x_j)_{j=1}^{j=i-1}, x_i', (x_j)_{j=i+1}^{j=k}\Big)\right) &\leq c_i
+		\end{align*}
+		i.e.\ if changing the $i$th co\"ordinate changes the value of $f$ by at most $c_i$
+		with respect to $\delta$.
+	\end{definition}
+	\begin{comment}
+		We will usually consider the metric space $(\mathbb{R}, \delta)$, where $\delta$ is
+		given by $\delta \coloneqq \lambda x, y. |x-y|$. In this case we omit the mention 
+		of which metric space we are really considering. \\
+		Furthermore, one commonly sees a related, but still weaker notion of a function 
+		being `Lipschitz', under which a $g \in X \rightarrow Y$ is \emph{C-Lipschitz} with
+		respect to $(X, \delta_X)$ and $(Y, \delta_Y)$ if $\forall x, x'\in X. 
+		\delta_Y(f(x), f(x')) \leq C \cdot \delta_X(x, x')$. We do not consider this notion
+		here, though.
+	\end{comment}
+	
+	Having defined the notion of a function being Lipschitz, we can now give the method of 
+	bounded differences, also known as McDiarmid's Inequality.
+	\begin{theorem}[McDiarmid's Inequality]
+		Let $(X_i)_{i=1}^{i=n}$ be a family of independent random variables, and let 
+		$f$ be Lipschitz with parameter $\mathbf{c}$. Then, if the random variable $X$
+		is given by $X \equiv f \circ [X_1\hdots X_n]$, for any $\epsilon \geq 0$
+		$$
+			\mathbb{P}(X - \mathbb{E}(X) \geq \epsilon) \leq 
+			\exp\left(-\frac{2\epsilon^2}{\sum_{i=1}^{i=n} c_i^2}\right)
+		$$
+	\end{theorem}
+	\begin{proof}
+		Let $(Z_i)_{i=1}^{i=n}$ be the Doob martingale for $f$ with respect to 
+		$(X_i)_{i=1}^{i=n}$, where we define $Z_0 = \mathbb{E}(X)$, then if we can bound 
+		$Z_{i} - Z_{i-1}$, we will be able to apply Azuma's inequality to derive McDiarmid's 
+		inequality. \\
+		Recall that, by the definition of the Doob martingale, we have that
+		$$
+			Z_{i}-Z_{i-1} = \mathbb{E}(X | (X_k)_{k=1}^{k=i})- 
+			\mathbb{E}(X | (X_k)_{k=1}^{k=i-1})
+		$$
+		which is, by the definition of conditional expectation,
+		\begin{align*}
+			Z_{i}-Z_{i-1} =& 
+			\sum_{\mathbf{x}} f((X_j)_{j=1}^{j=i-1}, X_i, \mathbf{x}) 
+			\mathbb{P}((X_j)_{j=i+1}^{j=n} = \mathbf{x}) \\ &- 
+			\sum_{y} \sum_{\mathbf{x}} f((X_j)_{j=1}^{j=i-1}, y, \mathbf{x}) 
+			\mathbb{P}(X_i = y \land (X_j)_{j=i+1}^{j=n} = \mathbf{x}) \\
+			\intertext{which is, since the $X_j$ are independent}
+			=& \sum_{y}\sum_{\mathbf{x}} \Big(f((X_j)_{j=1}^{j=i-1},X_i,\mathbf{x})\\
+			&- f((X_j)_{j=1}^{j=i-1}, y, \mathbf{x}) \Big) \cdot 
+			\mathbb{P}(X_i=y) \cdot \mathbb{P}((X_j)_{j=i+1}^{j=n} = \mathbf{x})
+		\end{align*}
+		Then, by noticing that 
+		\begin{align*}
+			\sup_{s,t}\left|f((X_j)_{j=1}^{j=i-1}, s, \mathbf{x})
+			-f((X_j)_{j=1}^{j=i-1}, t, \mathbf{x})\right| &= \\
+			\Big|\sup_{s}\left(f((X_j)_{j=1}^{j=i-1}, s, \mathbf{x})-
+			f((X_j)_{j=1}^{j=i-1}, y, \mathbf{x})\right) -& \\
+			\inf_{t}\left(f((X_j)_{j=1}^{j=i-1}, t, \mathbf{x})-
+			f((X_j)_{j=1}^{j=i-1}, y, \mathbf{x})\right)\Big|  &\leq c_i
+		\end{align*}
+		We may bound $Z_i - Z_{i-1}$ by $[a_i, b_i]$ by taking suprema and infima of the 
+		minuends and subtrahends, respectively, as $y$ varies. Thus $Z_i - Z_{i-1} \in 
+		[a_i, b_i]$, and $b_i-a_i\leq c_i$, which, when substituted into Azuma's inequality
+		results in McDiarmid's inequality.
+	\end{proof}
+
+	\subsection{Examples of Concentration Results}
+	In this section, we give a brief collection of exemplifying set-ups that exhibit behaviour 
+	related to the previous two sections. We shall also demonstrate that by modelling a 
+	problem in different ways, we may achieve signifcantly different concentration bounds (with
+	respect to their tightness).
+
+	So consider first the following scenario: Considering a grid of $(n+1) \times (n+1)$ 
+	vertices, where we index the vertices (on each axis) by $0 \hdots n$. Each vertex $(u, v)$ 
+	is connected to each of its neighbours, $(u\pm1, v\pm1)$, and vertices $(u,v), (u+1, v+1)$ 
+	with probability $p$. Then the shortest path from one corner to the opposing one may be as 
+	follows in the case where $n=4$.
+	\\
+	\begin{center}
+		\begin{tikzpicture}
+			\tikzstyle{every node}=[draw, shape=circle]
+			\path (0,0) node (p00) {} 
+			      (0,1) node (p01) {}
+			      (0,2) node (p02) {}
+			      (0,3) node (p03) {}
+			      (0,4) node (p04) {}
+			      (1,4) node (p14) {}
+			      (1,3) node (p13) {}
+			      (1,2) node (p12) {}
+			      (1,1) node (p11) {}
+			      (1,0) node (p10) {} 
+			      (2,0) node (p20) {} 
+			      (2,1) node (p21) {}
+			      (2,2) node (p22) {}
+			      (2,3) node (p23) {}
+			      (2,4) node (p24) {}
+			      (3,4) node (p34) {}
+			      (3,3) node (p33) {}
+			      (3,2) node (p32) {}
+			      (3,1) node (p31) {}
+			      (3,0) node (p30) {} 
+			      (4,0) node (p40) {} 
+			      (4,1) node (p41) {}
+			      (4,2) node (p42) {}
+			      (4,3) node (p43) {}
+			      (4,4) node (p44) {};
+			\draw (p00) -- (p10)
+			      (p10) -- (p20)
+			      (p20) -- (p30)
+			      (p30) -- (p40);
+			\draw (p01) -- (p11)
+			      (p11) -- (p21)
+			      (p21) -- (p31)
+			      (p31) -- (p41);
+			\draw (p02) -- (p12)
+			      (p12) -- (p22)
+			      (p22) -- (p32)
+			      (p32) -- (p42);
+			\draw (p03) -- (p13)
+			      (p13) -- (p23)
+			      (p23) -- (p33)
+			      (p33) -- (p43);
+			\draw (p04) -- (p14)
+			      (p14) -- (p24)
+			      (p24) -- (p34)
+			      (p34) -- (p44);
+			\draw (p00) -- (p01)
+			      (p01) -- (p02)
+			      (p02) -- (p03)
+			      (p03) -- (p04);
+			\draw (p10) -- (p11)
+			      (p11) -- (p12)
+			      (p12) -- (p13)
+			      (p13) -- (p14);
+			\draw (p20) -- (p21)
+			      (p21) -- (p22)
+			      (p22) -- (p23)
+			      (p23) -- (p24);
+			\draw (p30) -- (p31)
+			      (p31) -- (p32)
+			      (p32) -- (p33)
+			      (p33) -- (p34);
+			\draw (p40) -- (p41)
+			      (p41) -- (p42)
+			      (p42) -- (p43)
+			      (p43) -- (p44);
+			\draw (p01) -- (p12)
+			      (p03) -- (p14)
+			      (p10) -- (p21)
+			      (p13) -- (p24)
+			      (p21) -- (p32)
+			      (p22) -- (p33)
+			      (p30) -- (p41)
+			      (p32) -- (p43);
+			\draw[line width=1.8pt] (p00) -- (p10) -- (p21) -- (p32) -- (p43) -- (p44);
+		\end{tikzpicture}
+	\end{center}
+
+	Now, it turns out that we can prove concentration results for this setting. In 
+	particular, consider first the model where we let $X_{u,v}$ be the indicator of 
+	whether the `cell' at co\"ordinates $(u,v)$ has a diagonal. Then, if $Z$ is the 
+	random variable that takes as value the length of the shortest path between the 
+	corners at $(0,0)$ and $(n,n)$, then clearly, $\exists f \in \{0,1\}^{n^2} 
+	\rightarrow \mathbb{R}$ such that 
+	$$
+		Z = f \circ 
+		\begin{bmatrix}
+			X_{1,n} & \hdots & X_{n,n} \\
+			\vdots & \ddots & \vdots \\
+			X_{1,1} &\hdots & X_{n,1}
+		\end{bmatrix}
+	$$
+	which is also Lipschitz with parameter $\mathbf{c} = (2-\sqrt 2) \mathbf{1}^{n\times n}$, 
+	since taking away any diagonal means that the new shortest path is at most $2-\sqrt 2$ 
+	units longer (by replacing the diagonal with one horizontal and one vertical grid-line),
+	while adding any one diagonal would have (at best) the symmetrical effect of making the 
+	path shorter. Consequently, combining the two bounds in McDiarmid's inequality, we get 
+	$$
+		\mathbb{P}(|Z-\mathbb{E}(Z)| \geq \epsilon) \leq 
+		2 \exp \left(-\frac{2\epsilon^2}{(2-\sqrt 2)^2 n^2}\right).
+	$$
+
+	Interestingly, however, we may significantly improve on this bound by choosing the 
+	variables of which we model $Z$ as a function differently. Suppose instead we consider 
+	$Y_i = \begin{pmatrix} X_{i, 1} & \hdots & X_{i, n} \end{pmatrix}^T$, i.e.\ the $i$th column 
+	of indicators of diagonals. Since any shortest path from $(0,0)$ to $(n,n)$ would comprise,
+	at most, one diagonal from the $i$th column, again, there is a $g \in \left(\{0,1\}^{n}
+	\right)^n \rightarrow \mathbb{R}$ such that 
+	$$
+		Z = g \circ \begin{bmatrix} Y_1 & \hdots & Y_n \end{bmatrix}
+	$$
+	that is Lipschitz with parameter $\mathbf{c}' = (2-\sqrt 2) \mathbf{1}^{n}$. Consequently,
+	we can improve the above bound by the following, which is much tighter:
+	$$
+		\mathbb{P}(|Z-\mathbb{E}(Z)| \geq \epsilon) \leq 
+		2 \exp \left(-\frac{2\epsilon^2}{(2-\sqrt 2)^2 n}\right).
+	$$
+
+	Next, let us consider the example of the largest clique in an undirected graph. 
+	Consider a graph $G = (V, E)$ drawn from the Erd\H{o}s-R\'enyi distribution with parameters
+	$n,p$, and let $K$ be the largest integer such that $G$ has a complete subgraph of $K$
+	vertices. Enumerating the possible edges in $G$ with $1 \hdots \binom{n}{2}$, and setting 
+	$X_i$ to be the indicator of whether edge $i$ is present in $G$, we see that
+	$$		
+		\exists. f \in \{0,1\}^{\binom n 2} \rightarrow \mathbb{R} . 
+		K = f \circ \begin{bmatrix} X_1 & \hdots & X_{\binom n 2 } \end{bmatrix}
+	$$
+	where, since each edge influences  the largest clique size by at most 1, $f$ is Lipschitz 
+	with parameter $\mathbf{c} = \mathbf{1}^{\binom n 2}$, which leads us to conclude that 
+	$$
+		\mathbb{P}(|K - \mathbb{E}(K)| \geq \epsilon) \leq
+		2 \exp\left(- \frac{2\epsilon^2}{\binom n 2}\right)
+	$$
+	However, we can again improve the bound. This follows from considering the variables
+	$Y_i = \begin{pmatrix} 1[\{i,1\} \in E] & \hdots & 1[\{i, i-1\} \in E] \end{pmatrix}$,
+	i.e.\ the collection of edges involving the $i$th vertex (and preceding other vertices).
+
+
