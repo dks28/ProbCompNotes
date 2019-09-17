@@ -1356,7 +1356,7 @@
 		\mathbb{P}(|Z-\mathbb{E}(Z)| \geq \epsilon) \leq 
 		2 \exp \left(-\frac{2\epsilon^2}{(2-\sqrt 2)^2 n}\right).
 	$$
-
+	\ \\ \ \par
 	Next, let us consider the example of the largest clique in an undirected graph. 
 	Consider a graph $G = (V, E)$ drawn from the Erd\H{o}s-R\'enyi distribution with parameters
 	$n,p$, and let $K$ be the largest integer such that $G$ has a complete subgraph of $K$
@@ -1375,5 +1375,33 @@
 	However, we can again improve the bound. This follows from considering the variables
 	$Y_i = \begin{pmatrix} 1[\{i,1\} \in E] & \hdots & 1[\{i, i-1\} \in E] \end{pmatrix}$,
 	i.e.\ the collection of edges involving the $i$th vertex (and preceding other vertices).
+	\ \\ \ \par
+	As a final example, let us return to the Max-Cut problem we studied in the first chapter. 
+	Consider a graph $G = (V,E)$ drawn from the Erd\H{o}s-R\'enyi model with parameters $n$ and 
+	$\sfrac{1}{2}$, i.e.\ a graph having $n$ vertices in which each pari of vertices is 
+	connected by an edge with probability $50\%$. Then, for some $S \subseteq V$, denote by 
+	$E(S)$ the number of edges $\{u,v\} \in E$ such that $u \in S \land v \notin S$, the size 
+	of the cut resulting from $S$. Note, then, that $\mathbb{E}(E(S)) = \frac{|S|(n-|S|)}{2} 
+	\leq \sfrac{n^2}{8}$. Note also, that $E(S)$ is a function of each of the $|S|(n-|S|$ edges
+	between $S$ and $V \setminus S$, which is Lipschitz with parameter $\mathbf{c} = 
+	\mathbf{1}^{|S|(n-|S|)}$, meaning that
+	$$
+		\mathbb{P}(E(S) \geq (1+\delta)\mathbb{E}(E(S))) \leq 
+		\exp\left(-\frac{2\delta^2\mathbb{E}(E(S))^2}{|S|(n-|S|)}\right).
+	$$
 
-
+	Then, we can deduce
+	\begin{align*}
+		& \mathbb{P}\left(E(S) \geq \sfrac{n^2}{8} + \delta \sfrac{n^2}{4}\right) \\
+		&\leq \mathbb{P}\left(E(S) \geq (1+\sfrac{delta}{2})\mathbb{E}(E(S))\right) \\
+		&\leq \exp\left(-\frac{\delta^2 \mathbb{E}(E(S))}{2|S|(n-|S|)}\right) \\
+		&\in O\left(\exp\left(\delta^2n^2\right)\right)
+	\end{align*}
+	and by the union bound over all possible $S$, we have that
+	$$
+		\mathbb{P}\left(\exists S . E(S) \geq \sfrac{n^2}{8} + \sfrac{n^2}{4}\right) \in
+		O\left(2^n\exp\left(\right)\right) = O\left(2^n\exp\left(c^2n\right)\right)
+	$$
+	where we pick $c = \delta \sqrt n$. Now, we can easily see that for $c$ large enough, 
+	this means that, with high probability, the maximum cut in $G$ has size at most 
+	$\sfrac{n^2}{8} + c\sqrt{n^3}$.

@@ -1,2 +1,67 @@
-\chapter{Content}
-Bla
+\chapter{ The Optional Stopping Theorem}
+
+In this chapter, we investigate the interaction of martingales with stopping times. As an example, 
+we shall refer to the Gambler's Ruin process discussed previously. To remind the reader, the 
+Gambler's Ruin is a stochastic process $(X_i)_{i\in\mathbb{N}_0}$ defined by $X_0 = k$, for some 
+positive integer $k$, and $X_{i+1}$ is distributed uniformly over $\{-1, 1\}$ for any $i \in 
+\mathbb{N}_0$. The usual interpretation (leading to the process's common name) is that $X_0$ is a 
+starting capital for a gambler, and each subsequent $X_i$ indicates the profit made in the $i$th 
+round of play. \\
+Overall then, it makes sense to consider the capital the gambler possesses at each time step. 
+Denote this by $(S_i)_{i\in \mathbb{N}_0}$, and note that we take $S_i = X_0 + \sum_{j=1}^{j=i}X_i$
+for any $i$. Then, it should be reasonably obvious that $(S_i)_{i\in\mathbb{N}_0}$ is a martingale
+with respect to $(X_i)_{i\in\mathbb{N}_0}$, since each $X_i$is bounded below and above by $k-i$ and
+$k+i$, respectively (and the other axioms are obviously satisfied). 
+
+We shall consider a few stopping strategies (which yield stopping times) for the gambler; for 
+example the one we had considered previously, in which the gambler stops playing when either he 
+goes bankrupt or when he has $N > k$ pounds. We have already explored his process to some extent, 
+for example considering the expected capital the gambler would have by the time he stops playing. 
+The main aim of this chapter is to establish whether the gambler could improve his prospects by 
+changing his stopping strategy.
+
+\section{Review of Gambler's Ruin Stopping Times}
+	Recall that a stopping time for a a stochastic process $(X_i)_{i\in \mathbb{N}_0}$ is a 
+	random variable $\tau$ such that any event $\tau = i$ can be defined depending only on $X_0
+	\hdots X_i$. \\
+	Now, suppose first that the gambler simply intends to play for a total of $n$ rounds, then 
+	$\tau \coloneqq \lambda \omega . n$ is obviously a stopping time for 
+	$(X_i)_{i\in\mathbb{N}_0}$. In fact, the expected capital of the gambler at time $\tau$ can
+	easily be determined as $\mathbb{E}(X_0) = k$; this follows from a simple inductive 
+	argument. 
+
+	In fact, this co\"incides with the result we had previously obtained when considering the 
+	Gambler's Ruin as a Markov chain, and follwoing a different stopping strategy: By the 
+	result of lemma \ref{lemma:grprsucc}, we had that for our original stopping strategy (say 
+	$\tau'$), $\mathbb{E}(S_{\tau'}) = 0 \cdot \frac{n-k}{n} + n \cdot \frac{k}{n} = k$.  
+
+	\subsection{Stopped Martingales}
+	We would like to be able to combine the ideas of matingales with those of stopping times.
+	Luckily, we may simply use a construct which `stops' a martingale at a given stopping time,
+	without losing the martingale properties. This is recorded in lemma \ref{lemma:stopmart}.
+	\begin{lemma}
+		\label{lemma:stopmart}[Stopped Martingale]
+		Suppose that $(Z_i)_{i\in\mathbb{Ni}_0}$ is a martingale with respect to---and that 
+		$\tau$ is a stopping time for--- the stochastic process $(X_i)_{i\in\mathbb{N}_0}$.
+		Then the stochastic process $(T^\tau_i)_{i\in\mathbb{N}_0}$ defined by 
+		$$
+			Z^\tau_i = 
+			\begin{dcases}
+				Z_i & \tau \geq i \\
+				Z_\tau & \tau < i
+			\end{dcases}
+		$$
+		is a martingale with respect to $(X_i)_{i\in\mathbb{N}_0}$.
+	\end{lemma}
+	\begin{proof}
+		Notice that $Z^\tau_i = Z^\tau_{i-1} + 1[\tau \geq i](Z_i - Z_{i-1})$.\\
+		Then, we can see that $1[\tau \geq i]$ is a function of $(X_j)_{j=0}^{j=i-1}$,
+		since $\tau$ is a stopping time for $(X_i)_{i\in\mathbb{N}_0}$. Thus, $Z_i^\tau$ is
+		a function of $(X_j)_{j=0}^{j=i-1}$, satisfying the first axiom. The second and 
+		third axioms are satisfied simply because $(Z_i)_{i\in\mathbb{N}_0}$ is a martingale.
+	\end{proof}
+	
+\section{The Optional Stopping Theorem}
+
+
+
