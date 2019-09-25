@@ -126,7 +126,7 @@ changing his stopping strategy.
 		$Z_\tau$. \\
 		Then, the dominated convergence theorem implies that $\mathbb{E}(Z_\tau) = 
 		\lim_{n\rightarrow\infty}\mathbb{E}(Z_n^\tau)$. Since the stopped martingale is, 
-		indeed, a martigale, we have that, $\forall n \in \mathbb{N}. \mathbb{E}(X_n^\tau) 
+		indeed, a martigale, we have that $\forall n \in \mathbb{N}. \mathbb{E}(X_n^\tau) 
 		= \mathbb{E}(X_0)$, so we have $\mathbb{E}(X_\tau) = \mathbb{E}(X_0)$.
 	\end{proof}
 	\begin{comment}
@@ -198,7 +198,7 @@ changing his stopping strategy.
 	Now, it may be of interest that, if the gambler were to play until he had made a net 
 	profit of 1 pound, i.e.\ if he abided by the stopping time $\tau' = \inf(t\in\mathbb{N}_0 
 	: S_t = k+1)$, then he would expect to remain in the casino forever. Consider why: If we 
-	denote $\tau_{a,b} \coloneqq \inf(t\in\mathbb{N}_0: S-t = a \lor S_t = b)$, then clearly $
+	denote $\tau_{a,b} \coloneqq \inf(t\in\mathbb{N}_0: S_t = a \lor S_t = b)$, then clearly $
 	\tau \geq \tau_{-a, k+1}$ for any $a \in\mathbb{N}$. Thus,
 	$$
 	\mathbb{E}(\tau) \geq \mathbb{E}(\tau_{-a, k+1} | X_0 = k) = 

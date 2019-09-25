@@ -2,7 +2,7 @@
 
 This repository contains the LaTeX source for my lecture notes 
 about the Part II Unit of Assessment 'Probability and Computation'
-as lectured by Jpohn Sylvester, Nicolás Rivera, Luca Zanetti and 
+as lectured by John Sylvester, Nicolás Rivera, Luca Zanetti and 
 Thomas Sauerwald in 2019. 
 
 Their prupose is to support my learning for the 2020 iteration of 

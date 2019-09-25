@@ -1,2 +1,312 @@
-\chapter{Content}
-Bla
+\chapter{Markov Chains and Linear Algebra}
+
+In this chapter, we shall revisit the topic of Markov chains discussed previously, this time 
+focussing on methods to use linear algebra for the analysis of Markov chains. As we shall see, 
+this is a surprisingly powerful way of reasoning about many things; one can infer a large number 
+of things from the transition matrix of a Markov chain. \\
+Furthermore, using linear algebra for these purposes, it is possibe to design highly performant 
+algorithms even when the input data is high-dimensional. 
+
+\section{Linear Algebra}
+	
+	\subsection{Review of Fundamentals}
+	Recall from Part 1 that we think of probabilty distributions over an enumerable sample 
+	space $\Omega$ as vectors; that is, ordered collections of real numbers expressing 
+	functions $\Omega \rightarrow \mathbb{R}$. Recall also that a \emph{vector space} is 
+	defined as follows:
+	\begin{definition}[Vector Space]
+		A \emph{vector space} $(V,+,\bullet)$ over a field $F$ (i.e.\ a set with defined 
+		addition, subtraction, multiplication and division operators) is a triple of an 
+		underlying set $V$ with the operations $+ \in V \times V \rightarrow V$ (addition) 
+		and $\bullet$ (scalar multiplication) staisfying the axioms of 
+		\begin{itemize}
+			\item associativity and commutativity of addition,
+			\item the existence of an identity element $\mathbf{0} \in V$ with respect 
+			to addition and additive inverses in $V$, denoted $- \mathbf{v}$, for any 
+			\emph{vector} $\mathbf{v} \in V$,
+			\item compatibility of scalar multiplication with filed multiplication;
+			$a \bullet (b \bullet \mathbf{v}) = (a\cdot_F b) \bullet \mathbf{v}$ and 
+			\item the existence of an identity $1 \in F$ with respect to scalar 
+			multiplication, as well as distributivity of scala multipication with 
+			respect to both vector and field addition.
+		\end{itemize}
+	\end{definition}
+	We now define the concept of an \emph{inner product space}.
+	\begin{definition}[Inner Product Space]
+		An \emph{inner product space} $(V, +, \bullet, \langle \cdot, \cdot\rangle)$ is a 
+		vector space with respect to field $F \subseteq \mathbb{C}$, equipped with a map 
+		$\langle\cdot, \cdot\rangle \in V \times V \rightarrow F$ called the inner product 
+		satisfying
+		\begin{itemize}
+			\item conjugate symmetry, i.e.\ 
+			$$	
+				\forall \mathbf{v}, \mathbf{w} \in V. 
+				\langle \mathbf{v},\mathbf{w} \rangle = 
+				\langle \mathbf{w}, \mathbf{v} \rangle^*
+			$$
+			\item linearity in the first argument, i.e.\ 
+			$$
+			\forall a \in F, \mathbf{v}, \mathbf{w}, \mathbf{u} \in V. 
+			\langle a\bullet\mathbf{v} + \mathbf{w}, \mathbf{u}\rangle =
+			a\cdot\langle \mathbf{v}, \mathbf{u}\rangle + 
+			\langle \mathbf{w}, \mathbf{u}\rangle.
+			$$
+			\item positive-definiteness, i.e.\ 
+			$$
+				\forall \mathbf{v} \in V \setminus \{\mathbf{0}\}.
+				\langle\mathbf{v}, \mathbf{v} \rangle > 0,
+			$$
+			which is meaningful since conjugate symmetry implies $\langle\mathbf{v}, 
+			\mathbf{v} \rangle = \langle\mathbf{v}, \mathbf{v} \rangle^*$, 
+			i.e.\ $\langle\mathbf{v}, \mathbf{v} \rangle \in \mathbb{R}$.
+		\end{itemize}
+	\end{definition}
+	\begin{comment}
+		We will further denote, for the typical vector space where $V = \Omega \rightarrow
+		\mathbb{R}$ with respect to real numbers,
+		$\langle\cdot, \cdot\rangle_\pi = \lambda\mathbf{v},\mathbf{w}\ .\ \sum_{\omega\in
+		\Omega} \mathbf{v}(\omega)\cdot\mathbf{w}(\omega)\cdot\pi(\omega)$, for some fixed
+		$\pi \in \Omega \rightarrow \mathbb{R}^{+}$. With this definition it is easy 
+		to see that this construct satisfies the axioms for an inner product. We also note
+		that, if $\pi$ is a probability distribution, then $\langle f, g \rangle_\pi = 
+		\mathbb{E}_\pi(f\cdot g)$, and that with this definition the sxioms for inner 
+		product spaces are indeed satisfied.
+	\end{comment}
+
+	We also introduce the notion of orthogonality: vectors $\mathbf{v}, \mathbf{w} \in V$ are
+	orthogonal with respect to an inner product space $(V,+,\bullet,\langle\cdot,\cdot\rangle)$
+	(with respect to the scalar field $F$) if $\langle\mathbf{v},\mathbf{w}\rangle=0$ (where,
+	in full generality, $0$ denotes the additive identity in $F$). In this case, we write 
+	$\mathbf{v} \bot \mathbf{w}$.
+
+	\emph{Notation.}~We will denote the inner product space $l_{2}(\Omega, \pi) \coloneqq 
+	(\Omega \rightarrow \mathbb{R}, +, \cdot, \langle \cdot , \cdot \rangle_\pi)$, where 
+	addition and scalar multiplication are defined in the natural way. If we write $f \in 
+	l_2(\Omega, \pi)$, what we mean is $f \in \Omega \rightarrow \mathbb{R}$ and that we have 
+	the intention to use the inner product $\langle \cdot,\cdot \rangle_\pi$ on it. 
+
+	Furthermore, we define $L^p_\pi \coloneqq (\Omega\rightarrow\mathbb{R},\|\cdot\|_{p,\pi})$, 
+	where $p$ is a positive real number, to be the set of vectors in the inner product space 
+	$l_2(\Omega,\pi)$ equipped with the so-called \emph{$L^p_\pi$-norm}, defined by
+	$$
+		\|\cdot\|_{p,\pi}=\lambda f\in\Omega\rightarrow\mathbb{R}\ .\ 
+		\left(\sum_{\omega\in\Omega} | f(\omega)|^p \pi(\omega) \right)^{\sfrac{1}{p}}
+	$$
+	where, in particular, we have that $\|f\|_{2,\pi} = \sqrt{\langle f, f\rangle_\pi}$, and 
+	we call some family of vectors $f_1, f_2 \hdots$ \emph{orthonormal} w.r.t.\ an inner 
+	product space if its elements are pairwise orthogonal, and each element $f_i$ satisifies 
+	$\|f_i\|_{2,\pi} = 1$.
+	
+	Note that any such the $L_\pi^p$-norm in some inner product space gives rise to a metric 
+	on the underlying vector space, called the $L^p_\pi$-metric, defined by 
+	$$
+		\|\cdot - \cdot\|_{p,\pi} \coloneqq \lambda f, g \in \Omega \rightarrow \mathbb{R}
+		\ .\ \|(f + (-g))\|_{p, \pi}
+	$$
+	where of course the additive inverse of any $g \in \Omega \rightarrow \mathbb{R}$ is given 
+	by $-g \coloneqq \lambda \omega \in \Omega\ .\ -g(\omega)$.
+
+	Of course, we may consider more elaborate operations than addition on the vectors of the
+	inner product spce $l_2(\Omega, \pi)$. A \emph{linear} such unary operator M, i.e.\ one 
+	that satisfies $M (a f + b g) = a M(f) + b M(g)$, can be represented using a 
+	\emph{matrix}\footnote{The two notions, are, in fact, equivalent.}
+	$\mathbf{M} \in \Omega^2 \rightarrow \mathbb{C}$. In this context, we define the matrix 
+	multiplication of $\mathbf{M}$ with $f$ to be the result of the operation $M(f)$ or $(f)M$ 
+	(we take such $M$ to be both pr{\ae}fix and postfix operators):
+	\begin{align*}
+		\forall f \in\Omega\rightarrow\mathbb{R}\ .\  M(f)\equiv\lambda \omega\in\Omega\ .\ 
+		\sum_{\nu\in\Omega} \mathbf{M}(\omega, \nu) \cdot f(\nu) \\
+		\forall f \in\Omega\rightarrow\mathbb{R}\ .\ (f)M\equiv\lambda \omega\in\Omega\ .\ 
+		\sum_{\nu\in\Omega} \mathbf{M}(\nu, \omega) \cdot f(\nu)
+	\end{align*}
+
+	This leads us to formally define the concept of \emph{self-adjointness}:
+	\begin{definition}
+		For an enumerable sample space $\Omega$, a matrix $\mathbf{M} \in \Omega^2 
+		\rightarrow \mathbb{C}$, and the operation it represents on an inner product space 
+		$l_2(\Omega, \pi)$, are \emph{self-adjoint} with respect to this inner product 
+		space if for any two vectors $f, g\in \Omega\rightarrow\mathbb{R}$, 
+		$$		
+			\langle M(f), g \rangle_\pi = \langle f, M(g) \rangle
+		$$
+	\end{definition}
+	\begin{lemma}
+		A matrix $\mathbf{M}\in\Omega^2\rightarrow\mathbb{C}$ is self-adjoint with respect
+		to $l_2(\Omega, \pi)$ if, and only if, it is Hermitian, i.e.\ it is its
+		own conjugate transpose.
+	\end{lemma}
+	\begin{proof}
+		By the conjugate symmetry axiom, we have that
+		\begin{align*}
+			&& \langle f, M(g) \rangle_\pi &= \langle M(f) , g \rangle_\pi  \\
+			\iff&& 
+			\langle M(g), f\rangle_\pi^* &= \langle M(f),g\rangle_\pi 
+			\\
+			\iff&& 
+			\left(
+			\sum_{\omega,\nu\in\Omega}\mathbf{M}(\omega,\nu)f(\nu)g(\omega)\pi(\omega)
+			\right)^*
+			&=\sum_{\omega,\nu\in\Omega}
+			\mathbf{M}(\omega,\nu)f(\nu)g(\omega)\pi(\omega) \\
+			\iff&&  
+			\sum_{\omega,\nu\in\Omega}
+			\mathbf{M}(\omega,\nu)^*g(\nu)f(\omega)\pi(\omega) &=
+			\sum_{\omega,\nu\in\Omega}
+			\mathbf{M}(\omega,\nu)f(\nu)g(\omega)\pi(\omega)
+			\\
+			\iff&& 
+			\forall \nu,\omega \in \Omega\ .\ 
+			\mathbf{M}(\nu,\omega) &= \mathbf{M}(\omega,\nu)^*
+		\end{align*}
+		This proves that self-adjointness is equivalent to symmetry in the more restricive
+		case of $\mathbf{M}\in\Omega^2\rightarrow\mathbb{R}$, too.
+	\end{proof}
+
+	\subsection{Eigenpairs and the Spectral Theorem}
+
+	Now, recall the qualities of the so-called \emph{eigenpairs} of matrices: 
+	\begin{definition}
+		A vector $\mathbf{v} \in V$ from some vector space where $V\subseteq \Omega 
+		\rightarrow \mathbf{C}$ is a right eigenvector of some matrix $\mathbf{M} \in 
+		\Omega^2 \rightarrow \mathbb{C}$ with corresponding eigenvalue $\lambda$ if 
+		$$
+			\mathbf{M}cdot\mathbf{v} = \lambda \mathbf{v}
+		$$
+		and an analogous definition applies to left eigenvectors.
+	\end{definition}
+	For example, the transition matrix $\mathbf{P}$ of any Markov chain has a left eigenvector 
+	$\pi$ with eigenvalue $1$ if, and only if, $\pi$ is a stationary distribution of the Markov 
+	chain. It is also important to note that, for any matrix $\mathbf{M}$, for any $n\in
+	\mathbb{N}_0$, $\mathbf{M}^n$ has the same eigenvectors as $\mathbf{M}$, with corresponding 
+	eigenvalues $\lambda^n$.
+
+	The discussion of eigenvalues gives rise to the following important result, known as the 
+	\emph{spectral} theorem; the use of the word spectral in the context of linear algebra 
+	derives from the fact that the set of eigenvalues of a matrix is called its 
+	\emph{spectrum}.
+	\begin{theorem}[Spectral Theorem]
+		\label{theorem:spectral}
+		Given an inner product space $(V, + , \bullet, \langle \cdot,\cdot\rangle)$ with 
+		respect to a field $F\subseteq \mathbb{C}$, where the ``dimension''\footnote{The 
+		dimension of a vector space is the smallest cardinality of a subset $U \subseteq V
+		$ such that $\forall \mathbf{v} \in V . \exists a \in U \rightarrow F . \sum_{
+		\mathbf{u}\in U} a(\mathbf{u})\bullet\mathbf{u}$. We call such a subset $U$ a `basis'
+		of the vector space.} of $V$ is $n$. Then if a linear operator $M$ is self-adjoint 
+		with respect to this inner product space, it has $n$ \emph{real} eigenvalues, 
+		which we denote $\lambda_1 \geq \hdots \geq \lambda_n$, the corresponding right 
+		eigenvectors $\{\mathbf{v}_i : i \in \{1\hdots n\}\}$ which form an orthonormal 
+		basis for $V$.
+	\end{theorem}
+	Before we prove the spectral theorem, we must state and prove the following lemma as well:
+	\begin{lemma}
+		\label{lemma:spectralhelp}
+		Let $(V, + , \bullet, \langle\cdot,\cdot\rangle)$ be an inner product space with 
+		respect to field $F \subseteq \mathbb{C}$, and suppose that $V$ is of dimension $n 
+		\in \mathbb{N}$. Then, for any vector $\mathbf{v}\in V$ such tht $\mathbf{v}\neq 
+		\mathbf{0}$, the set $U\subset V$ defined by $U \coloneqq \{\mathbf{u} : \mathbf{u}
+		\bot \mathbf{v}\}$ is of dimension $n-1$.
+	\end{lemma}
+	\begin{proof}
+		We prove that this is the case by bounding the dimension of $U$ both below and 
+		above as $n-1$. So consider some basis $U'$ of $U$. Then take any $\mathbf{w} \in 
+		V$, and note that with
+		$$
+			\mathbf{w}' \coloneqq \mathbf{w} - 
+			\langle\mathbf{v},\mathbf{v}\rangle^{-1} \bullet 
+			\langle\mathbf{w},\mathbf{v}\bullet \mathbf{v}
+		$$
+		We have that $\mathbf{w}' \bot \mathbf{v}$. Therefore, $\mathbf{w}' \in U$, and 
+		can therefore be written as a linear combination of the vectors in $U'$. Since 
+		this goes for any $\mathbf{w} \in V$, we may obtain a base for $V$ as $\{
+		\mathbf{v}\} \cup U'$. Thus, since the smallest base for $V$ is of cardinality $n$ 
+		by assumption, any base $U'$ of $U$ must have at least cardinality $n-1$, that is, 
+		$\mathrm{dim} (U) \geq n-1$. \\
+		Now take any minimal base $V'$ of $V$, that is, one containing $n$ vectors. Then,
+		assume, without loss of generality, that $\mathbf{v} \in V'$, for if it were not, 
+		we could write $\mathbf{v} = \sum_{\mathbf{v'} \in V'} a(\mathbf{v}') \cdot 
+		\mathbf{v}'$, and take replace any $\mathbf{w} \in V'$ such that $a \coloneqq 
+		a(\mathbf{w}) \neq 0$ by $\mathbf{v}$ by writing  $\mathbf{w} = a^{-1} \cdot 
+		\left(\mathbf{v}- \sum_{\mathbf{v}' \in V'\setminus{\{\mathbf{w}\}}}a(\mathbf{v}') 
+		\cdot\mathbf{v}'\right)$. Note that this implies the vectors of $V'$ are linearly 
+		independent. That is, none of them may be written as a linear combination of the 
+		others. Then, take any $\mathbf{u}\in U$, and note that in expressing $\mathbf{u}$ 
+		as a linear combination of $V'$, the co\"efficient $c(\mathbf{v})$ of $\mathbf{v}$ 
+		must be $0$, 
+		since if we construct $\mathbf{u}'$ as previously we constructed $\mathbf{w}'$, 
+		thenwe get that 
+		$$
+			0 = \langle\mathbf{v},\mathbf{v}\rangle^{-1} \cdot
+			\langle\mathbf{u},\mathbf{v}\rangle = c(\mathbf{v})
+		$$
+		since otherwise we would have (denoting the left hand side of this equality as
+		$d(\mathbf{c})$) 
+		\begin{align*}
+			\mathbf{0} &= \mathbf{0} - \mathbf{0} \\
+			           &= \langle\mathbf{u},\mathbf{v}\rangle - 
+				   \langle\mathbf{u}',\mathbf{v}\rangle \\
+				   &= \langle\mathbf{u}-\mathbf{u}',\mathbf{v}\rangle \\
+			&=\langle c(\mathbf{v})\cdot\mathbf{v}-d(\mathbf{v})\cdot\mathbf{v},
+			\mathbf{v}\rangle \\
+			           &= \langle \kappa \cdot \mathbf{v}, \mathbf{v}\rangle \\
+				   &= \kappa \cdot \langle \mathbf{v},\mathbf{v}\rangle
+		\end{align*}
+		which is impossible for $\kappa \neq 0$, i.e.\footnote{Formally, of course, we 
+		have not shown that the additive inverse of a vector is (uniquely) the additive 
+		inverse of the multiplicative identitiy in $F$; this would require us to introduce 
+		group theory, as well! However, we shall state this result here without proving 
+		it.}\ $c(\mathbf{v}) \neq d(\mathbf{v})$.\\
+		Again, since this goes for all $\mathbf{u} \in U$, the vectors $V' \setminus 
+		\{\mathbf{v}\}$ for a basis of cardinality $n-1$ for $U$, and so $\mathrm{dim}(U) 
+		\geq n-1$, completing the proof.
+	\end{proof}
+	We may now proceed with the proof of the spectral theorem.
+	\begin{proof}[Proof of theorem \ref{theorem:spectral}]
+		We prove first that any eigenvalue of the linear operator is, indeed, real, then
+		that the linear operator has $n$ corresponding, orthonromal eigenvectors.\\
+		A result known as the \emph{fundamental theorem of linear algebra} states that 
+		the linear operator has at least one eigenpair $(\lambda, \mathbf{v})$ where 
+		$\mathbf{v} \neq \mathbf{0}$. Then note that since $\mathbf{v} \neq\mathbf{0}$,
+		$\langle \mathbf{v},\mathbf{v}\rangle > 0$. Now, by self-adjointness, we have
+		\begin{align*}
+			\langle M(\mathbf{v}),\mathbf{v}\rangle &= 
+			\langle \mathbf{v},M(\mathbf{v})\rangle \\
+			\langle M(\mathbf{v}),\mathbf{v}\rangle &= 
+			\langle M(\mathbf{v}),\mathbf{v}\rangle^* \\
+			\langle \lambda \bullet \mathbf{v},\mathbf{v}\rangle &= 
+			\langle \lambda \bullet \mathbf{v},\mathbf{v}\rangle^* \\
+			\lambda \cdot \langle\mathbf{v},\mathbf{v}\rangle &=
+			\lambda^* \cdot \langle\mathbf{v},\mathbf{v}\rangle^* \\
+			\lambda \cdot \langle\mathbf{v},\mathbf{v}\rangle &=
+			\lambda^* \cdot \langle\mathbf{v},\mathbf{v}\rangle 
+		\end{align*}
+		Therefore $\lambda$ must be real.\par
+		Now, we proceed to show that the corresponding eigenvectors form an orthonormal%
+		\footnote{the general definition of orthonormity replaces the $L^2_\pi$-norm 
+		discussed previously with some other function $\|\cdot\|\in V\rightarrow F$ 
+		satisfying $\|a\bullet \mathbf{w}\| = a\cdot \|\mathbf{w}\|$
+		and requires  $\|\mathbf{v}\|= 1$, where $1$ is the multiplicative identity in $F$.} 
+		basis for $V$, for which we proceed by induction on $n$. For the base case, where 
+		$n = 1$, we have that we can simply take $\mathbf{v}_1 \coloneqq 
+		\|\mathbf{v}\|^{-1}\bullet \mathbf{v}$ (where $a^{-1} \in F$ denotes the 
+		multiplicative inverse of $a\in F$ and $\mathbf{v}$ is the eigenvector whose 
+		existence is guaranteed by the fundamental theorem of linear algebra). \\
+		Now assume this holds for $n-1$ and take for some vector space with dimension $n$ 
+		the linear operator $M$ to be self-adjoint, and take $\mathbf{v}$ to be an 
+		eigenvector for it. Then denote by $U$ the subset of $V$ that contains all vectors 
+		$\mathbf{u}$ such that $\mathbf{u}\bot\mathbf{v}$. Denote by $M_U$ the linear 
+		operator $M$ restricted to domain $U$, and note that, its range is also a subset 
+		of $U$ since for any $\mathbf{u}\in U$,
+		$$
+			\langle \mathbf{v},M(\mathbf{u})\rangle =
+			\langle M(\mathbf{v}),\mathbf{u}\rangle = 
+			\lambda \cdot \langle\mathbf{v} , \mathbf{u}\rangle =
+			0
+		$$
+		i.e.\ $\mathbf{v}\bot M_U(\mathbf{u})$, so $M_U(\mathbf{u})\in U$. Notice that $U$ 
+		has dimension $n-1$ by lemma \ref{lemma:spectralhelp}. 
+		Now, by the inductive hypothesis, 
+		there is an orthonormal basis of $U$ consisting of $n-1$ right eigenvectors of 
+		$M_U$, which are also right eigenvectors of $M$. Therefore, by extending this 
+		basis by a normalised variant of $\mathbf{v}$ yields a basis for $V$, completing 
+		the proof.
+	\end{proof}
