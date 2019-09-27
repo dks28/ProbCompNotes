@@ -456,17 +456,23 @@
 					Markov's inequality,}
 					&= \mathbb{P}(X_0 = i) + \mathbb{P}(X_0 \neq i) = 1
 				\end{align*}
-				This can obviously be re\"arranged to arrive at a uniquely determined expression
-				for the stationary distribution that moreover has the form described in the 
-				proposition.
+				This can obviously be re\"arranged to arrive at a uniquely 
+				determined expression for the stationary distribution that 
+				moreover has the form described in the proposition.
 			\end{proof}
 
 		\subsubsection{Periodicity and Convergence}
-			Before we go on to discuss the properties of periodicity and convergence of a Markov 
-			chain, we will define the notion of random walks over graphs.
+			Before we go on to discuss the properties of periodicity and convergence 
+			of a Markov chain, we will define the notion of random walks over graphs.
 			\begin{definition}[Random Walk]
-				Given a graph $G=(V,E)$, we define a \emph{random walk} on $G$ to be a Markov
-				chain with state space $V$, and a transition matrix given by
+				Given a graph $G=(V,E)$, we define a \emph{random walk} on $G$ to 
+				be a Markov chain with state space $V$, and a transition matrix 
+				$\mathbf{P}$ that satisfies 
+				$$
+					P_{u,v} > 0  \iff (u,v) \in E.
+				$$
+				(for a directed graph, with a similar condition for undirected 
+				graphs.)
 			\end{definition}
 			In particular, we define the \emph{simple random walk} (SRW) over $G$ to have 
 			transition matrix $\mathbf{P}$ given by 
@@ -1390,7 +1396,7 @@ for _ in range(x):               # some largeish number of iterations
 			Let $(X_t)_{t\in\mathbb{N}_0}$ be a Markov chain on state space $\mathcal
 			{I}$, with stationary distribution $\pi$. Then if $(Y_t,Z_t)_{t\in
 			\mathbb{N}_0}$ is a coupling of this Markov
-			chain ith itself, and there exists a $T\in\mathbb{N}$, and an $\epsilon>0$
+			chain with itself, and there exists a $T\in\mathbb{N}$, and an $\epsilon>0$
 			such that
 			$$
 				\forall i,j \in \mathcal{I}.

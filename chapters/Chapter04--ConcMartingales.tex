@@ -585,8 +585,26 @@
 			\\
 			&= \exp\left(\mu \cdot t + \frac{\sigma^2 \cdot t^2}{2}\right)
 		\end{align*}
-		Finishing the first part of the proof. For the second part, we wait for 
-		StackExchange tells us something interesting.
+		Finishing the first part of the proof. For the second part, we have that
+		\begin{align*}
+			\mathbb{P}(X \geq (1+\delta)\mu ) 
+			&\leq \inf_{t \in \mathbb{R}^+}\left(\frac{\exp\left(
+			\mu t + \frac{\sigma^2t^2}{2}\right)}{\exp((1+\delta)\mu t)}\right) \\
+			&= \inf_{t\in \mathbb{R}^+} \left(\exp\left(\frac{\sigma^2t^2}{2} - 
+			\delta t \mu\right)\right) \\
+			&\stackrel{\mathrm{def}}{\equiv} \inf_{t\in \mathbb{R}^+}(f(t))
+		\end{align*}
+		Thus if we optimise $f$ over $t$ we obtain that
+		\begin{align*}
+		\frac{\partial f}{\partial t} &=  f(t) \cdot (\sigma^2t-\delta \mu)\\
+		\therefore\ \ \ \  \frac{\partial f}{\partial t} = 0 &\implies t= \delta\mu\sigma^{-2}
+		\end{align*}
+		which we can insert into $f(t)$ to get that
+		$$
+			\forall \delta > 0 . \mathbb{P}(X \geq (1+\delta)\mu) \leq 
+			\exp\left(\frac{\delta^2\mu^2}{2\sigma^2}-\frac{\delta^2\mu^2}{\sigma^2}\right)
+			=\exp\left(-\frac{\delta^2\mu^2}{2\sigma^2}\right)
+		$$
 	\end{proof}
 	
 	More importantly than these, we now introduce bounds for a more general class of 
