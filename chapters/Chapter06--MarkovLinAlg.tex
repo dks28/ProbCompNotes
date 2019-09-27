@@ -144,7 +144,7 @@ algorithms even when the input data is high-dimensional.
 			\\
 			\iff&& 
 			\left(
-			\sum_{\omega,\nu\in\Omega}\mathbf{M}(\omega,\nu)f(\nu)g(\omega)\pi(\omega)
+			\sum_{\omega,\nu\in\Omega}\mathbf{M}(\omega,\nu)g(\nu)f(\omega)\pi(\omega)
 			\right)^*
 			&=\sum_{\omega,\nu\in\Omega}
 			\mathbf{M}(\omega,\nu)f(\nu)g(\omega)\pi(\omega) \\
@@ -170,7 +170,7 @@ algorithms even when the input data is high-dimensional.
 		\rightarrow \mathbf{C}$ is a right eigenvector of some matrix $\mathbf{M} \in 
 		\Omega^2 \rightarrow \mathbb{C}$ with corresponding eigenvalue $\lambda$ if 
 		$$
-			\mathbf{M}cdot\mathbf{v} = \lambda \mathbf{v}
+			\mathbf{M}\cdot\mathbf{v} = \lambda \mathbf{v}
 		$$
 		and an analogous definition applies to left eigenvectors.
 	\end{definition}
@@ -189,9 +189,10 @@ algorithms even when the input data is high-dimensional.
 		Given an inner product space $(V, + , \bullet, \langle \cdot,\cdot\rangle)$ with 
 		respect to a field $F\subseteq \mathbb{C}$, where the ``dimension''\footnote{The 
 		dimension of a vector space is the smallest cardinality of a subset $U \subseteq V
-		$ such that $\forall \mathbf{v} \in V . \exists a \in U \rightarrow F . \sum_{
-		\mathbf{u}\in U} a(\mathbf{u})\bullet\mathbf{u}$. We call such a subset $U$ a `basis'
-		of the vector space.} of $V$ is $n$. Then if a linear operator $M$ is self-adjoint 
+		$ such that $\forall \mathbf{v} \in V,  \mathbf{u} \in U. \exists \kappa_\mathbf{u}
+		\in F . \sum_{\mathbf{u}\in U} \kappa_\mathbf{u}\bullet\mathbf{u}$. 
+		We call such a subset $U$ a `basis' of the vector space.} 
+		of $V$ is $n$. Then if a linear operator $M$ is self-adjoint 
 		with respect to this inner product space, it has $n$ \emph{real} eigenvalues, 
 		which we denote $\lambda_1 \geq \hdots \geq \lambda_n$, the corresponding right 
 		eigenvectors $\{\mathbf{v}_i : i \in \{1\hdots n\}\}$ which form an orthonormal 
@@ -202,7 +203,7 @@ algorithms even when the input data is high-dimensional.
 		\label{lemma:spectralhelp}
 		Let $(V, + , \bullet, \langle\cdot,\cdot\rangle)$ be an inner product space with 
 		respect to field $F \subseteq \mathbb{C}$, and suppose that $V$ is of dimension $n 
-		\in \mathbb{N}$. Then, for any vector $\mathbf{v}\in V$ such tht $\mathbf{v}\neq 
+		\in \mathbb{N}$. Then, for any vector $\mathbf{v}\in V$ such that $\mathbf{v}\neq 
 		\mathbf{0}$, the set $U\subset V$ defined by $U \coloneqq \{\mathbf{u} : \mathbf{u}
 		\bot \mathbf{v}\}$ is of dimension $n-1$.
 	\end{lemma}
@@ -213,7 +214,7 @@ algorithms even when the input data is high-dimensional.
 		$$
 			\mathbf{w}' \coloneqq \mathbf{w} - 
 			\langle\mathbf{v},\mathbf{v}\rangle^{-1} \bullet 
-			\langle\mathbf{w},\mathbf{v}\bullet \mathbf{v}
+			\langle\mathbf{w},\mathbf{v}\rangle\bullet \mathbf{v}
 		$$
 		We have that $\mathbf{w}' \bot \mathbf{v}$. Therefore, $\mathbf{w}' \in U$, and 
 		can therefore be written as a linear combination of the vectors in $U'$. Since 
@@ -227,36 +228,30 @@ algorithms even when the input data is high-dimensional.
 		\mathbf{v}'$, and take replace any $\mathbf{w} \in V'$ such that $a \coloneqq 
 		a(\mathbf{w}) \neq 0$ by $\mathbf{v}$ by writing  $\mathbf{w} = a^{-1} \cdot 
 		\left(\mathbf{v}- \sum_{\mathbf{v}' \in V'\setminus{\{\mathbf{w}\}}}a(\mathbf{v}') 
-		\cdot\mathbf{v}'\right)$. Note that this implies the vectors of $V'$ are linearly 
+		\cdot\mathbf{v}'\right)$.\\ 
+		Assume further, without loss of generality, that for each vector $\mathbf{w}\in V'$
+		such that $\mathbf{w} \neq \mathbf{v}$, $\mathbf{w} \bot \mathbf{v}$. This is 
+		justifiable since, if this is not already the case, we can simply replace each 
+		such vector $\mathbf{w}$ with $\mathbf{w}'$ as above; this preserves the set being 
+		a basis, but guarantees that all vectors in the basis are orthogonal to 
+		$\mathbf{v}$. \\
+		Note that the set being a minimum basis implies the vectors of $V'$ are linearly 
 		independent. That is, none of them may be written as a linear combination of the 
 		others. Then, take any $\mathbf{u}\in U$, and note that in expressing $\mathbf{u}$ 
-		as a linear combination of $V'$, the co\"efficient $c(\mathbf{v})$ of $\mathbf{v}$ 
-		must be $0$, 
-		since if we construct $\mathbf{u}'$ as previously we constructed $\mathbf{w}'$, 
-		thenwe get that 
-		$$
-			0 = \langle\mathbf{v},\mathbf{v}\rangle^{-1} \cdot
-			\langle\mathbf{u},\mathbf{v}\rangle = c(\mathbf{v})
-		$$
-		since otherwise we would have (denoting the left hand side of this equality as
-		$d(\mathbf{c})$) 
+		as a linear combination of $V'$, the co\"efficient $\kappa_\mathbf{v}$ of 
+		$\mathbf{v}$ in the linear combination for $\mathbf{u}$ must be $0$, since we have 
+		that
 		\begin{align*}
-			\mathbf{0} &= \mathbf{0} - \mathbf{0} \\
-			           &= \langle\mathbf{u},\mathbf{v}\rangle - 
-				   \langle\mathbf{u}',\mathbf{v}\rangle \\
-				   &= \langle\mathbf{u}-\mathbf{u}',\mathbf{v}\rangle \\
-			&=\langle c(\mathbf{v})\cdot\mathbf{v}-d(\mathbf{v})\cdot\mathbf{v},
-			\mathbf{v}\rangle \\
-			           &= \langle \kappa \cdot \mathbf{v}, \mathbf{v}\rangle \\
-				   &= \kappa \cdot \langle \mathbf{v},\mathbf{v}\rangle
+			0 &= \langle \mathbf{u}, \mathbf{v} \rangle \\
+			 &= \left(\sum_{\mathbf{w}\in V' \setminus\{\mathbf{v}\}}
+			\langle \kappa_\mathbf{w}\bullet\mathbf{w},\mathbf{v}\rangle\right) + 
+			 \langle \kappa_\mathbf{v} \bullet \mathbf{v} , \mathbf{v} \rangle \\
+			&= 0 + \kappa_\mathbf{v} \cdot \langle \mathbf{v} , \mathbf{v} \rangle
 		\end{align*}
-		which is impossible for $\kappa \neq 0$, i.e.\footnote{Formally, of course, we 
-		have not shown that the additive inverse of a vector is (uniquely) the additive 
-		inverse of the multiplicative identitiy in $F$; this would require us to introduce 
-		group theory, as well! However, we shall state this result here without proving 
-		it.}\ $c(\mathbf{v}) \neq d(\mathbf{v})$.\\
+		which is impossible for $\kappa_\mathbf{v} \neq 0$ since $\langle\mathbf{v},
+		\mathbf{v}\rangle > 0$. \\
 		Again, since this goes for all $\mathbf{u} \in U$, the vectors $V' \setminus 
-		\{\mathbf{v}\}$ for a basis of cardinality $n-1$ for $U$, and so $\mathrm{dim}(U) 
+		\{\mathbf{v}\}$ form a basis of cardinality $n-1$ for $U$, and so $\mathrm{dim}(U) 
 		\geq n-1$, completing the proof.
 	\end{proof}
 	We may now proceed with the proof of the spectral theorem.
@@ -310,3 +305,116 @@ algorithms even when the input data is high-dimensional.
 		basis by a normalised variant of $\mathbf{v}$ yields a basis for $V$, completing 
 		the proof.
 	\end{proof}
+
+	Now, with respect to the specific inner product space $l_2(\Omega, \pi)$, where $\Omega$ 
+	is finite, this implies that any self-adjoint linear operator in this inner product space 
+	has $n \coloneqq |\Omega|$ \emph{eigenfunctions} (i.e.\ eigenvectors) $f_1\hdots f_n$ that 
+	form an orthormal basis with respect to the norm $\|\cdot\|_{2,\pi}$ we can write any $g 
+	\in \Omega\rightarrow \mathbb{R}$ as 
+	$$
+		g = \sum_{i=1}^{i=n} \langle g, f_i \rangle \bullet f_i
+	$$
+	by an argument similar to the one presented in the proof of lemma \ref{lemma:spectralhelp}.
+	\\
+	Furthermore, we can actually see that we can decompose each row the linear operator $M$ as
+	$\mathbf{M}_x \coloneqq (\mathbf{M}(x,y))_{y\in\Omega}$ as
+	$$
+		\mathbf{M}_x = \lambda y\in\Omega\ .\ \sum_{i=1}^{i=n}\lambda_i f_i(x)f_i(y)\pi(y)
+	$$
+	since 
+	\begin{align*}
+		\frac{\mathbf{M}_x}{\pi}
+		&\coloneqq\lambda y\in\Omega\ .\ \frac{\mathbf{M}_x(y)}{\pi(y)} \\
+		&= \lambda y\in\Omega\ .\ \sum_{i=1}^{i=n} 
+		\left\langle \frac{\mathbf{M}_x}{\pi} , f_i\right\rangle\cdot f_i(y) \\
+		&= \lambda y\in\Omega\ .\ \sum_{i=1}^{i=n} 
+		\left(\sum_{z\in\Omega}\frac{M(x,z) \cdot f_i(z) \cdot \pi(z)}{\pi(y)}\right)\cdot 
+		f_i(y) \\
+		&= \lambda y\in\Omega\ .\ M(f_i)(x) \cdot f_i(y) \\ 
+		&= \lambda y\in\Omega\ .\ \lambda_i \cdot f_i(x) \cdot f_i(y)
+	\end{align*}
+
+	\subsection{Markov Chains and Linear Algebra}
+	We now turn our attention to the interactions between linear algebra and Markov chains. The 
+	first property of Markov chains that we will thus consider is that of \emph{reversibility}.
+
+	\subsubsection{Reversible Markov Chains}
+	\begin{definition}[Reversible Markov Chains]
+		Suppose a Markov chaini $(X_t){t\in\mathbb{N}_0}$ over state space $\mathcal{I}$ 
+		with transition matrix $\mathbf{P}$ has stationary dsitribution $\pi$ such that 
+		$\forall u\in\mathcal{I} 
+		. \pi(i) > 0$. Then, we call this Markov chain reversible if, for any $i,j \in
+		\mathcal{I}$,
+		$$
+			\mathbb{P}(X_n = i \land X_{n+1} = j | X_n \sim \pi) 
+			= 
+			\mathbb{P}(X_n = j \land X_{n+1} = i | X_n \sim \pi),
+		$$
+		i.e.\ 
+		$$
+			\pi(i) P_{i, j} = \pi(j) P_{j,i}.
+		$$
+	\end{definition}
+	
+	Recall from Chapter 2 that any Markov chain could be vewed as some random walk over a 
+	directed graph; with different `edge weights' not only on edges between distinct paris of 
+	vertices, but also between the different directions of edges between one such pair. A 
+	reversible Markov chain thus models some random walk over a weighted, but \emph{undirected} 
+	graph, as the definition of reversibility implies that for any such random walk, any edge 
+	in the graph is equally probable to be traversed in one direction as the other.\\
+	The first property of reversible Markov chains with respect to linear algebra is recorded 
+	in lemma \ref{lemma:reversibleselfadjoint}.
+	\begin{lemma}
+		\label{lemma:reversibleselfadjoint}
+		A Markov chain over state space $\mathcal{I}$ with transition matrix $\mathbf{P}$ 
+		and stationary distribution $\pi$ is reversible if, and only if,
+		$\mathbf{P}$ is self-adjoint with respect to $l_2(\mathcal{I},\pi)$.
+	\end{lemma}
+	\begin{proof}
+		Suppose first that the Markov chain is reversible. 
+		Then, we have for any $f,g \in \mathcal{I} \in \mathbb{I}$
+		\begin{align*}
+			\langle \mathbf{P}\cdot f, g\rangle_\pi 
+			&= \sum_{i,j\in \mathcal{I}} 
+			P_{i,j}\cdot f(j) \cdot g(i) \cdot \pi(i)\\
+			&= \sum_{i,j\in \mathcal{I}} 
+			P_{j,i}\cdot f(j) \cdot g(i) \cdot \pi(j)\\
+			&= \langle f, \mathbf{P}\cdot g\rangle_\pi.
+		\end{align*}
+		Secondly suppose that the matrix $\mathbf{P}$ is self-adjoint with respect to 
+		$l_2(\mathcal{I}, \pi)$. Then we have that
+		\begin{align*}
+			\pi(j)P_{j,i} &= \langle \mathbf{P}\cdot 1[i], 1[j]\rangle_\pi\\
+			&= \langle 1[i], \mathbf{P}\cdot1[j] \rangle_\pi \\
+			&= \pi(i)P_{i,j}.
+		\end{align*}
+	\end{proof}
+
+	Now, to re\"iterate: A reversible Markov chain models some random walk over an undirected 
+	graph. From this model, we can derive the following facts, which are to be proven as part 
+	of an example sheet. We therefore merely state them.
+	\begin{claim}
+		Suppose that $G = (V,E)$ is a finite undirected graph on $n$ vertices, and that 
+		some random walk over $G$ is reversible. \\
+		Then let $\lambda_1 \hdots \lambda_n$ be the (right) \emph{spectrum} of this random 
+		walk's
+		transition matrix and fix $\lambda_1 \geq \lambda_2 \geq \hdots \geq \lambda_n$ 
+		(recall that all $\lambda_i$ are real by the spectral theorem).
+		Then we have that 
+		\begin{itemize}
+			\item $\forall i . |\lambda_i| \leq 1$.
+			\item $\lambda_1 = 1$.
+			\item $\lambda_2 < 1$ if---and only if---the graph $G$ is connected.
+			\item $\lambda_n = -1$ if---and only if---one of the graph's connected 
+			components is bipartite.
+		\end{itemize}
+	\end{claim}
+	With these facts, the following lemma is clearly also true:
+	\begin{lemma}
+		A random walk over an undirected graph $G$ with $n$ vertices converges to its 
+		stationary distribution if, and only if, its spectrum $\lambda_1\geq\lambda_2\geq
+		\hdots\geq\lambda_n$ satisifes
+		$$
+			\max_{2\leq i\leq n}(|\lambda_i|) < 1 .
+		$$
+	\end{lemma}
